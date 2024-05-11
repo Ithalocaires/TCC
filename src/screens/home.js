@@ -6,8 +6,9 @@ import Icon2 from 'react-native-vector-icons/FontAwesome';
 
 const HomeScreen = () => {
     return(
+        
         <View style= {Styles.header}>
-           
+             {/*Header*/}
                 <Text style={Styles.headerTextBlue}>
                     Você não está logado.
                 </Text>
@@ -18,54 +19,56 @@ const HomeScreen = () => {
                     <Text style={Styles.loginBtnText}>Entrar com Gov.br</Text>
                 </TouchableOpacity>
 
+                  {/*Container azul na parte inferior */}
                 <View style={Styles.body}>
                     <Text style={Styles.bodyText}> Ações </Text>
+
+                      {/*Primeira Linha de botões */}
                     <View style={Styles.btnContainer}>
                         <TouchableOpacity style={Styles.bodyBtn}>
                             <Icon name="newspaper-outline" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
-                                style={{borderRadius:8, padding:10,}}
-                            />
+                                style={{borderRadius:8, padding:10, paddingHorizontal: 10}}/>
                             <Text style={Styles.bodyBtnText}> Conteúdos </Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={Styles.bodyBtn}>
                             <Icon2 name="hospital-o" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
-                                style={{borderRadius:8, padding:11, width:45, paddingHorizontal: 12 }}/>
+                                style={{borderRadius:8, padding:11, width:45, paddingHorizontal: 13 }}/>
                             <Text style={Styles.bodyBtnText2}> Rede de Saúde </Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={Styles.bodyBtn}>
-                            <Icon2 name="hospital-o" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
+                            <Icon2 name="qrcode" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
                                 style={{borderRadius:8, padding:11, width:45, paddingHorizontal: 12 }}/>
                             <Text style={Styles.bodyBtnText2}> Valida Cartão </Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={Styles.bodyBtn}>
-                            <Icon2 name="hospital-o" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
-                                style={{borderRadius:8, padding:11, width:45, paddingHorizontal: 12 }}/>
+                            <Icon2 name="calendar" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
+                                style={{borderRadius:8, padding:11, width:45, paddingHorizontal: 11 }}/>
                             <Text style={Styles.bodyBtnText2}> Cartilha de Vacinas </Text>
                         </TouchableOpacity>
                     </View>
+
+                    {/*Segunda Linha de botões */}
                     <View style={Styles.btnContainer}>
                         <TouchableOpacity style={Styles.bodyBtn}>
-                            <Icon name="newspaper-outline" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
-                                style={{borderRadius:8, padding:10,}}
-                            />
-                            <Text style={Styles.bodyBtnText}> Conteúdos </Text>
+                            <Icon name="chatbubble-ellipses-outline" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
+                                style={{borderRadius:8, padding:10,}}/>
+                            <Text style={Styles.bodyBtnText2}> Fale com meu SUS digital </Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={Styles.bodyBtn}>
                             <Icon2 name="hospital-o" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
                                 style={{borderRadius:8, padding:11, width:45, paddingHorizontal: 12 }}/>
-                            <Text style={Styles.bodyBtnText2}> Rede de Saúde </Text>
+                            <Text style={Styles.bodyBtnText2}> Sobre o SUS </Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={Styles.bodyBtn}>
-                            <Icon2 name="hospital-o" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
-                                style={{borderRadius:8, padding:11, width:45, paddingHorizontal: 12 }}/>
-                            <Text style={Styles.bodyBtnText2}> Valida Cartão </Text>
-                        </TouchableOpacity>
+                            <Icon name="information-circle-outline" size={35}  color= '#003770' backgroundColor='white' borderRadius={20}
+                                style={{borderRadius:8, paddingVertical:6, width:46, paddingHorizontal: 6 }}/>
+                            <Text style={Styles.bodyBtnText2}> Termos de utilização </Text>
+                        </TouchableOpacity> 
                         <TouchableOpacity style={Styles.bodyBtn}>
-                            <Icon2 name="hospital-o" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
-                                style={{borderRadius:8, padding:11, width:45, paddingHorizontal: 12 }}/>
-                            <Text style={Styles.bodyBtnText2}> Cartilha de Vacinas </Text>
+                            <Icon2 name="mobile-phone" size={35}  color= '#003770' backgroundColor='white' borderRadius={20}
+                                style={{borderRadius:8, padding:5, width:45, paddingHorizontal: 15 }}/>
+                            <Text style={Styles.bodyBtnText2}> Consulta pelo Celular </Text>
                         </TouchableOpacity>
-                        
                     </View>
             </View>
         </View>
@@ -115,7 +118,7 @@ const Styles = StyleSheet.create({
         borderTopRightRadius: 20,
         paddingVertical: 10,
         paddingHorizontal: 15,
-        marginTop: 90,
+        marginTop: 70,
         width: '110%',
         flex: 1,
         marginBottom: -20,
@@ -129,7 +132,7 @@ const Styles = StyleSheet.create({
     },
     bodyBtn:{
         alignItems: 'center',
-        width: 70,
+        width: 72,
         marginLeft: 15,
         marginTop: 15,
         marginHorizontal: 5,
