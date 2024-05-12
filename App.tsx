@@ -1,10 +1,11 @@
 import React from 'react';
 import HomeScreen from './src/screens/home';
 import Form from './src/screens/form'; 
+import ChatScreen from './src/screens/chat';
 import SplashScreen from './src/screens/loading';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Button } from 'react-native';
+
 
 const Stack = createStackNavigator();
 
@@ -31,6 +32,7 @@ const App = () => {
         <Stack.Screen name="Loading" component={SplashScreen} options={{title: ''}} />
 
         {/*Tela Consulta*/}
+        <Stack.Screen name="Chat" component={ChatScreen} options={{title: ''}} />
       </Stack.Navigator>
     </NavigationContainer>
   )

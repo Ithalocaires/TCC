@@ -6,7 +6,7 @@ const SplashScreen = ({ navigation }) => {
   useEffect(() => {
     // Simula o carregamento por 5 segundos
     const timer = setTimeout(() => {
-      navigation.replace('NextScreen'); 
+      navigation.replace('Chat'); 
     }, 5000);
 
     return () => clearTimeout(timer); // Limpa o timer ao desmontar o componente

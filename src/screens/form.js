@@ -27,7 +27,7 @@ const Form = ({navigation}) => {
           console.log('Nome:', nome);
           console.log('Carteirinha SUS:', carteirinhaSus);
           console.log('Observações:', observacoes);
-          navigation.navigate('Consulta')
+          navigation.navigate('Loading')
         };
 
 
@@ -102,7 +102,7 @@ const Styles = StyleSheet.create({
         borderRadius: 4,
         padding: 8,
         marginBottom: 16,
-        textAlignVertical: 'top', // Alinha o texto na parte superior
+        textAlignVertical: 'top',
         marginTop: 30,
         height: 120,
         width: 300,
