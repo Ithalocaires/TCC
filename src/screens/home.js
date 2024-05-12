@@ -4,42 +4,53 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Icon2 from 'react-native-vector-icons/FontAwesome';
 
 
-const HomeScreen = () => {
+const HomeScreen = ({navigation}) => {
     return(
         
         <View style= {Styles.header}>
-             {/*Header*/}
+
+                {/*Header*/}
                 <Text style={Styles.headerTextBlue}>
                     Você não está logado.
                 </Text>
                 <Text style={Styles.headerText}>
                     Entre com Gov.br e acesse todos os serviços do SUS Digital.
                 </Text>
+
+                {/*Botão Login */}
                 <TouchableOpacity style={Styles.loginBtn}>
                     <Text style={Styles.loginBtnText}>Entrar com Gov.br</Text>
                 </TouchableOpacity>
 
-                  {/*Container azul na parte inferior */}
+                {/*Container azul na parte inferior */}
                 <View style={Styles.body}>
                     <Text style={Styles.bodyText}> Ações </Text>
 
-                      {/*Primeira Linha de botões */}
+                    {/*Primeira Linha de botões */}
                     <View style={Styles.btnContainer}>
+
+                        {/*Botão 1 */}
                         <TouchableOpacity style={Styles.bodyBtn}>
                             <Icon name="newspaper-outline" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
                                 style={{borderRadius:8, padding:10, paddingHorizontal: 10}}/>
                             <Text style={Styles.bodyBtnText}> Conteúdos </Text>
                         </TouchableOpacity>
+
+                        {/*Botão 2 */}
                         <TouchableOpacity style={Styles.bodyBtn}>
                             <Icon2 name="hospital-o" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
                                 style={{borderRadius:8, padding:11, width:45, paddingHorizontal: 13 }}/>
                             <Text style={Styles.bodyBtnText2}> Rede de Saúde </Text>
                         </TouchableOpacity>
+
+                        {/*Botão 3 */}
                         <TouchableOpacity style={Styles.bodyBtn}>
                             <Icon2 name="qrcode" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
                                 style={{borderRadius:8, padding:11, width:45, paddingHorizontal: 12 }}/>
                             <Text style={Styles.bodyBtnText2}> Valida Cartão </Text>
                         </TouchableOpacity>
+
+                        {/*Botão 4 */}
                         <TouchableOpacity style={Styles.bodyBtn}>
                             <Icon2 name="calendar" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
                                 style={{borderRadius:8, padding:11, width:45, paddingHorizontal: 11 }}/>
@@ -49,22 +60,30 @@ const HomeScreen = () => {
 
                     {/*Segunda Linha de botões */}
                     <View style={Styles.btnContainer}>
+
+                        {/*Botão 5 */}
                         <TouchableOpacity style={Styles.bodyBtn}>
                             <Icon name="chatbubble-ellipses-outline" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
                                 style={{borderRadius:8, padding:10,}}/>
                             <Text style={Styles.bodyBtnText2}> Fale com meu SUS digital </Text>
                         </TouchableOpacity>
+
+                        {/*Botão 6 */}
                         <TouchableOpacity style={Styles.bodyBtn}>
                             <Icon2 name="hospital-o" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
-                                style={{borderRadius:8, padding:11, width:45, paddingHorizontal: 12 }}/>
+                               style={{borderRadius:8, padding:11, width:45, paddingHorizontal: 12 }}/>
                             <Text style={Styles.bodyBtnText2}> Sobre o SUS </Text>
                         </TouchableOpacity>
+
+                        {/*Botão 7 */}
                         <TouchableOpacity style={Styles.bodyBtn}>
                             <Icon name="information-circle-outline" size={35}  color= '#003770' backgroundColor='white' borderRadius={20}
                                 style={{borderRadius:8, paddingVertical:6, width:46, paddingHorizontal: 6 }}/>
                             <Text style={Styles.bodyBtnText2}> Termos de utilização </Text>
-                        </TouchableOpacity> 
-                        <TouchableOpacity style={Styles.bodyBtn}>
+                        </TouchableOpacity>
+                        
+                        {/*Botão 8 */}
+                        <TouchableOpacity style={Styles.bodyBtn} onPress={() => navigation.navigate('Consulta')}>
                             <Icon2 name="mobile-phone" size={35}  color= '#003770' backgroundColor='white' borderRadius={20}
                                 style={{borderRadius:8, padding:5, width:45, paddingHorizontal: 15 }}/>
                             <Text style={Styles.bodyBtnText2}> Consulta pelo Celular </Text>
@@ -85,11 +104,11 @@ const Styles = StyleSheet.create({
     headerTextBlue:{
         fontSize: 22,  
         marginBottom: 20,
-        marginTop: 10,
         color: '#53affa',
         alignItems: 'center',
-        marginTop: 200,
+        marginTop: 150,
         fontWeight: 'bold', 
+        textAlign: 'center',
     },
     headerText:{
         fontSize: 16, 
