@@ -21,8 +21,8 @@ const Form = ({navigation}) => {
                 Alert.alert('Atenção', 'Por favor, preencha todos os campos.');
                 return;
               }
-
-          // Lógica para enviar os dados do formulário
+            
+          {/*Lógica para enviar os dados do formulário*/}
           console.log('Dados enviados:');
           console.log('Nome:', nome);
           console.log('Carteirinha SUS:', carteirinhaSus);
@@ -63,7 +63,7 @@ const Form = ({navigation}) => {
             multiline
             />
             <TouchableOpacity style={Styles.confirmBtn} onPress={handleSubmit}>
-                <Text style={Styles.confirmBtnText}>Entrar com Gov.br</Text>
+                <Text style={Styles.confirmBtnText}>Confirmar dados</Text>
             </TouchableOpacity>
         </View>
     )

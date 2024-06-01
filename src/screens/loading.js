@@ -4,18 +4,17 @@ import LottieView from 'lottie-react-native';
 
 const SplashScreen = ({ navigation }) => {
   useEffect(() => {
-    // Simula o carregamento por 5 segundos
     const timer = setTimeout(() => {
       navigation.replace('Chat'); 
-    }, 5000);
+    }, 100);
 
-    return () => clearTimeout(timer); // Limpa o timer ao desmontar o componente
+    return () => clearTimeout(timer);
   }, []);
 
   return (
     <View style={styles.container}>
       <LottieView
-        source={require('../source/Loading.json')} // Substitua pelo caminho do seu arquivo de animação
+        source={require('../source/Loading.json')}
         autoPlay
         loop
       />
@@ -28,6 +27,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#fff',
   },
   loadingText: {
     fontSize: 18,

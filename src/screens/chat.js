@@ -7,23 +7,30 @@ const ChatScreen = () => {
 
   const handleSendMessage = () => {
     if (message.trim()) {
-      setMessages([...messages, { id: Date.now(), text: message }]);
+      const timestamp = new Date();
+      setMessages((prevMessages) => [...prevMessages, { id: Date.now(), text: message, isUser: true, timestamp }]);
       setMessage('');
+  
+      setTimeout(() => {
+        setMessages((prevMessages) => [...prevMessages, { id: Date.now() + 1, text: 'Obrigado pela sua mensagem! Como posso ajudar?', isUser: false, timestamp }]);
+      }, 100); 
     }
   };
 
   return (
     <View style={styles.container}>
-      <FlatList
+     <FlatList
         data={messages}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View style={styles.messageContainer}>
+          <View style={item.isUser ? styles.userMessage : styles.botMessage}>
             <Text style={styles.messageText}>{item.text}</Text>
+            {item.timestamp && (
+              <Text style={styles.timestamp}>{item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+            )}
           </View>
         )}
       />
-
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -45,15 +52,22 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-  messageContainer: {
-    backgroundColor: '#007bff',
-    padding: 8,
+  userMessage: {
+    backgroundColor: '#003770',
+    padding: 10,
     borderRadius: 8,
     marginBottom: 8,
-    width: 200,
     borderColor: 'black',
-    alignItems: 'flex-start',
-    marginStart: 150,
+    alignSelf: 'flex-end',
+    marginStart: 100,
+  },
+  botMessage: {
+    backgroundColor: '#0071CF',
+    padding: 10,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+    marginEnd: 100,
   },
   messageText: {
     fontSize: 16,
@@ -82,6 +96,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#0071CF',
     color:'white',
+  },
+  timestamp: {
+    fontSize: 8,
+    color: 'white',
   },
 });
 
