@@ -2,15 +2,23 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 
 const ChatScreen = () => {
-  const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([]);
+  {/*Constatantes para armazenar valor da mensagem*/}
 
+  {/*Mensagem do usuário*/}
+  const [message, setMessage] = useState('');
+
+  {/*Mensagem provisória do bot*/}
+  const [messages, setMessages] = useState('');
+
+  {/*Função para funcionamento do chat*/}
   const handleSendMessage = () => {
+   
     if (message.trim()) {
       const timestamp = new Date();
       setMessages((prevMessages) => [...prevMessages, { id: Date.now(), text: message, isUser: true, timestamp }]);
       setMessage('');
-  
+
+       {/*Resposta automática para teste*/}
       setTimeout(() => {
         setMessages((prevMessages) => [...prevMessages, { id: Date.now() + 1, text: 'Obrigado pela sua mensagem! Como posso ajudar?', isUser: false, timestamp }]);
       }, 100); 
@@ -19,6 +27,7 @@ const ChatScreen = () => {
 
   return (
     <View style={styles.container}>
+      {/*Resposta automática para teste*/}
      <FlatList
         data={messages}
         keyExtractor={(item) => item.id.toString()}
@@ -31,6 +40,7 @@ const ChatScreen = () => {
           </View>
         )}
       />
+      {/*Input para escrever mesangem*/}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -39,6 +49,7 @@ const ChatScreen = () => {
           value={message}
           onChangeText={setMessage}
         />
+        {/*Botão para enviar mensagem*/}
         <TouchableOpacity onPress={handleSendMessage}>
           <Text style={styles.sendButton}>Enviar</Text>
         </TouchableOpacity>

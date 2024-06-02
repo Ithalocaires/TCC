@@ -11,6 +11,8 @@ const SplashScreen = ({ navigation }) => {
     return () => clearTimeout(timer);
   }, []);
 
+  {/*Tela de loading não está funcionando devidamente*/}
+
   return (
     <View style={styles.container}>
       <LottieView
