@@ -32,7 +32,7 @@ const HomeScreen = ({navigation}) => {
                         {/*Botão 1 */}
                         <TouchableOpacity style={Styles.bodyBtn}>
                             <Icon name="newspaper-outline" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
-                                style={{borderRadius:8, padding:10, paddingHorizontal: 10}}/>
+                                style={{borderRadius:8, padding:12, paddingHorizontal: 10}}/>
                             <Text style={Styles.bodyBtnText}> Conteúdos </Text>
                         </TouchableOpacity>
 

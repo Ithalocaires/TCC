@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 
-const ChatScreen = () => {
+const ChatScreen = ({route}) => {
   {/*Constatantes para armazenar valor da mensagem*/}
+  const { nome, carteirinhaSus, observacoes } = route.params;
+  {/*Armazena mensagem que está sendo digitada*/}
+  const [message, setMessage] = useState([]);
 
-  {/*Mensagem do usuário*/}
-  const [message, setMessage] = useState('');
-
-  {/*Mensagem provisória do bot*/}
-  const [messages, setMessages] = useState('');
+  {/*Mensagem enviada*/}
+  const [messages, setMessages] = useState([
+  { id: Date.now(), text: `Nome: ${nome}`, isUser: true, timestamp: new Date() },
+  { id: Date.now() + 1, text: `Carteirinha SUS: ${carteirinhaSus}`, isUser: true, timestamp: new Date() },
+  { id: Date.now() + 2, text: `Observações: ${observacoes}`, isUser: true, timestamp: new Date() },
+  ]);
 
   {/*Função para funcionamento do chat*/}
   const handleSendMessage = () => {
@@ -20,7 +24,7 @@ const ChatScreen = () => {
 
        {/*Resposta automática para teste*/}
       setTimeout(() => {
-        setMessages((prevMessages) => [...prevMessages, { id: Date.now() + 1, text: 'Obrigado pela sua mensagem! Como posso ajudar?', isUser: false, timestamp }]);
+        setMessages((prevMessages) => [...prevMessages, { id: Date.now() + 1, text: `Olá ${nome}, como posso ajudar?`, isUser: false, timestamp }]);
       }, 100); 
     }
   };

@@ -16,19 +16,23 @@ const Form = ({navigation}) => {
         };
         
       
-        const handleSubmit = () => {
+        const enviarParaChat = (nome, carteirinhaSus, observacoes) => {
+            // Aqui vai a lógica para enviar os dados para o chat
+            console.log('Enviando para o chat:');
+            console.log('Nome:', nome);
+            console.log('Carteirinha SUS:', carteirinhaSus);
+            console.log('Observações:', observacoes);
+          };
+          
+          const handleSubmit = () => {
             if (!nome.trim() || !carteirinhaSus.trim() || !observacoes.trim()) {
-                Alert.alert('Atenção', 'Por favor, preencha todos os campos.');
-                return;
-              }
-            
-          {/*Lógica para enviar os dados do formulário*/}
-          console.log('Dados enviados:');
-          console.log('Nome:', nome);
-          console.log('Carteirinha SUS:', carteirinhaSus);
-          console.log('Observações:', observacoes);
-          navigation.navigate('Loading')
-        };
+              Alert.alert('Atenção', 'Por favor, preencha todos os campos.');
+              return;
+            }
+          
+            // Navega para a tela de chat e passa os dados do formulário como parâmetros
+            navigation.navigate('Chat', { nome, carteirinhaSus, observacoes });
+          };
 
 
     return (
