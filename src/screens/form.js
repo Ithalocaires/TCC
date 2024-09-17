@@ -16,13 +16,6 @@ const Form = ({navigation}) => {
         };
         
       
-        const enviarParaChat = (nome, carteirinhaSus, observacoes) => {
-            // Aqui vai a lógica para enviar os dados para o chat
-            console.log('Enviando para o chat:');
-            console.log('Nome:', nome);
-            console.log('Carteirinha SUS:', carteirinhaSus);
-            console.log('Observações:', observacoes);
-          };
           
           const handleSubmit = () => {
             if (!nome.trim() || !carteirinhaSus.trim() || !observacoes.trim()) {
@@ -30,7 +23,7 @@ const Form = ({navigation}) => {
               return;
             }
           
-            // Navega para a tela de chat e passa os dados do formulário como parâmetros
+             {/*Navega de tela juntamente com os dados em questão*/}
             navigation.navigate('Chat', { nome, carteirinhaSus, observacoes });
           };
 
