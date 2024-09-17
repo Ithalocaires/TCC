@@ -1,30 +1,30 @@
 import React, {useState} from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, TextInput, Alert } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Alert } from 'react-native'
 
 const Form = ({navigation}) => {
-        const [nome, setNome] = useState('');
-        const [carteirinhaSus, setCarteirinhaSus] = useState('');
-        const [observacoes, setObservacoes] = useState('');
-        const handleCarteirinhaSusChange =  (text) => {
+        const [name, setName] = useState('');
+        const [susCard, setSusCard] = useState('');
+        const [obs, setObservacoes] = useState('');
+        const handleSusCardChange =  (text) => {
             {/*Remove qualquer caractere que não seja número*/}
             const cleanedText = text.replace(/[^0-9]/g, '');
 
-             {/*Formata o texto com espaços*/}
+            {/*Formata o texto com espaços*/}
             const formattedText = cleanedText.replace(/(\d{2})(\d{4})(\d{4})(\d{4})/, '$1 $2 $3 $4');
 
-            setCarteirinhaSus(formattedText);
+            setSusCard(formattedText);
         };
         
       
           
           const handleSubmit = () => {
-            if (!nome.trim() || !carteirinhaSus.trim() || !observacoes.trim()) {
+            if (!name.trim() || !susCard.trim() || !obs.trim()) {
               Alert.alert('Atenção', 'Por favor, preencha todos os campos.');
               return;
             }
           
              {/*Navega de tela juntamente com os dados em questão*/}
-            navigation.navigate('Chat', { nome, carteirinhaSus, observacoes });
+            navigation.navigate('Chat', { name, susCard, obs });
           };
 
 
@@ -34,8 +34,8 @@ const Form = ({navigation}) => {
             <TextInput
             style={Styles.formInput}
             placeholder="Digite seu nome"
-            value={nome}
-            onChangeText={setNome}
+            value={name}
+            onChangeText={setName}
             color='black'
             placeholderTextColor="#999"
             marginTop={70}
@@ -43,8 +43,8 @@ const Form = ({navigation}) => {
             <TextInput
             style={Styles.formInput}
             placeholder="Digite o número da carteirinha SUS"
-            value={carteirinhaSus}
-            onChangeText={handleCarteirinhaSusChange}
+            value={susCard}
+            onChangeText={handleSusCardChange}
             color='black'
             placeholderTextColor="#999"
             keyboardType="numeric"
@@ -53,7 +53,7 @@ const Form = ({navigation}) => {
             <TextInput
             style={Styles.formInputObs}
             placeholder="Digite suas observações"
-            value={observacoes}
+            value={obs}
             onChangeText={setObservacoes}
             color='black'
             placeholderTextColor="#999"

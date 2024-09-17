@@ -5,6 +5,7 @@ import ChatScreen from './src/screens/chat';
 import SplashScreen from './src/screens/loading';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import 'react-native-gesture-handler'
 
 
 const Stack = createStackNavigator();

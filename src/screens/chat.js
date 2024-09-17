@@ -1,65 +1,63 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { useRoute } from "@react-navigation/native";
+import { StyleSheet } from "react-native";
 
-const ChatScreen = ({route}) => {
-  {/*Constatantes para armazenar valor da mensagem*/}
-  const { nome, carteirinhaSus, observacoes } = route.params;
-  {/*Armazena mensagem que está sendo digitada*/}
-  const [message, setMessage] = useState([]);
+import { GiftedChat } from 'react-native-gifted-chat'
+import { useCallback, useEffect, useState } from "react";
 
-  {/*Mensagem enviada*/}
-  const [messages, setMessages] = useState([
-  { id: Date.now(), text: `Nome: ${nome}`, isUser: true, timestamp: new Date() },
-  { id: Date.now() + 1, text: `Carteirinha SUS: ${carteirinhaSus}`, isUser: true, timestamp: new Date() },
-  { id: Date.now() + 2, text: `Observações: ${observacoes}`, isUser: true, timestamp: new Date() },
-  ]);
+//importação do firebase e database
+import { collection, addDoc, onSnapshot, query,orderBy } from "firebase/firestore";
+import { database } from "../../config/firebase";
 
-  {/*Função para funcionamento do chat*/}
-  const handleSendMessage = () => {
-   
-    if (message.trim()) {
-      const timestamp = new Date();
-      setMessages((prevMessages) => [...prevMessages, { id: Date.now(), text: message, isUser: true, timestamp }]);
-      setMessage('');
+export default function ChatScreen() {
+    const [messages, setMessages] = useState([]);
+    const route = useRoute();
+    const { name, susCard, obs } = route.params;
+    useEffect(() => {
+        async function getMessages() {
+            const values = query(collection(database, 'chats'), orderBy('createdAt', 'desc'));
+            //orderBy('createdAt', 'desc') ordena as mensagens por data de criação
+            //onSnapshot é um listener que fica escutando as alterações no banco de dados
+            //sempre que houver uma alteração, ele vai executar a função que está dentro dele
+            onSnapshot(values, (snapshot) => setMessages(
+                snapshot.docs.map(doc => ({
+                    _id: doc.data()._id,
+                    createdAt: doc.data().createdAt.toDate(),
+                    text: doc.data().text,
+                    user: doc.data().user,
+                }))
+            ));
+        }
+        getMessages();
+    }, []);
 
-       {/*Resposta automática para teste*/}
-      setTimeout(() => {
-        setMessages((prevMessages) => [...prevMessages, { id: Date.now() + 1, text: `Olá ${nome}, como posso ajudar?`, isUser: false, timestamp }]);
-      }, 100); 
-    }
-  };
 
-  return (
-    <View style={styles.container}>
-      {/*Resposta automática para teste*/}
-     <FlatList
-        data={messages}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={item.isUser ? styles.userMessage : styles.botMessage}>
-            <Text style={styles.messageText}>{item.text}</Text>
-            {item.timestamp && (
-              <Text style={styles.timestamp}>{item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
-            )}
-          </View>
-        )}
-      />
-      {/*Input para escrever mesangem*/}
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholderTextColor="#999"
-          placeholder="Digite sua mensagem..."
-          value={message}
-          onChangeText={setMessage}
+    //função que aciona assim que envia a mensagem no aplicativo
+    const mensagemEnviada = useCallback((messages = []) => {
+
+        setMessages(previousMessages =>{
+              GiftedChat.append(previousMessages, messages)
+
+            }
+        );
+        const { _id, createdAt, text, user } = messages[0];
+
+        addDoc(collection(database, "chats"), {
+            _id,
+            createdAt,
+            text,
+            user,
+        });
+    }, []);
+    
+    return (
+        <GiftedChat
+          messages={messages}
+          onSend={msg => mensagemEnviada(msg)}
+          user={{
+                _id: name,
+            }}
         />
-        {/*Botão para enviar mensagem*/}
-        <TouchableOpacity onPress={handleSendMessage}>
-          <Text style={styles.sendButton}>Enviar</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+    )
 };
 
 const styles = StyleSheet.create({
@@ -76,7 +74,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     marginStart: 100,
   },
-  botMessage: {
+  docMessage: {
     backgroundColor: '#0071CF',
     padding: 10,
     borderRadius: 8,
@@ -117,5 +115,3 @@ const styles = StyleSheet.create({
     color: 'white',
   },
 });
-
-export default ChatScreen;
