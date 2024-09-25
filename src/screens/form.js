@@ -1,5 +1,7 @@
 import React, {useState} from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, Alert } from 'react-native'
+import { addDoc, collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
+import { database } from "../../config/firebase";
 
 const Form = ({navigation}) => {
         const [name, setName] = useState('');
@@ -17,16 +19,33 @@ const Form = ({navigation}) => {
         
       
           
-          const handleSubmit = () => {
+          const handleSubmit = async () => {
             if (!name.trim() || !susCard.trim() || !obs.trim()) {
               Alert.alert('Atenção', 'Por favor, preencha todos os campos.');
               return;
             }
-          
-             {/*Navega de tela juntamente com os dados em questão*/}
-            navigation.navigate('Chat', { name, susCard, obs });
-          };
-
+            
+            let sessionId;
+            const sessionsQuery = query(collection(database, 'chatSessions'), where('userCount', '<', 2));
+            const sessionSnapshot = await getDocs(sessionsQuery);
+    
+            if (!sessionSnapshot.empty) {
+                // Se existir uma sessão com menos de dois usuários, use essa sessão
+                const sessionDoc = sessionSnapshot.docs[0];
+                sessionId = sessionDoc.id;
+                await updateDoc(doc(database, 'chatSessions', sessionId), {
+                    userCount: sessionDoc.data().userCount + 1
+                });
+            } else {
+                // Caso contrário, crie uma nova sessão
+                const newSession = await addDoc(collection(database, 'chatSessions'), {
+                    userCount: 1
+                });
+                sessionId = newSession.id;
+            }
+    
+            navigation.navigate('Chat', { sessionId, name, susCard, obs });
+        };
 
     return (
         <View style={Styles.formView}>

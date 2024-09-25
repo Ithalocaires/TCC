@@ -7,48 +7,45 @@ import { useCallback, useEffect, useState } from "react";
 //importação do firebase e database
 import { collection, addDoc, onSnapshot, query,orderBy } from "firebase/firestore";
 import { database } from "../../config/firebase";
+import { getAnalytics } from "firebase/analytics";
 
 export default function ChatScreen() {
     const [messages, setMessages] = useState([]);
     const route = useRoute();
-    const { name, susCard, obs } = route.params;
+    const { sessionId, name, susCard, obs } = route.params;
+    const [id, setId] = useState ('')
+    const [user, setUser] = useState ('')
+
     useEffect(() => {
-        async function getMessages() {
-            const values = query(collection(database, 'chats'), orderBy('createdAt', 'desc'));
-            //orderBy('createdAt', 'desc') ordena as mensagens por data de criação
-            //onSnapshot é um listener que fica escutando as alterações no banco de dados
-            //sempre que houver uma alteração, ele vai executar a função que está dentro dele
-            onSnapshot(values, (snapshot) => setMessages(
-                snapshot.docs.map(doc => ({
-                    _id: doc.data()._id,
-                    createdAt: doc.data().createdAt.toDate(),
-                    text: doc.data().text,
-                    user: doc.data().user,
-                }))
-            ));
-        }
-        getMessages();
-    }, []);
+      async function getMessages() {
+          const values = query(collection(database, `chatSessions/${sessionId}/messages`), orderBy('createdAt', 'desc'));
+          onSnapshot(values, (snapshot) => {
+            setMessages(
+              snapshot.docs.map(doc => ({
+                  _id: doc.data()._id,
+                  createdAt: doc.data().createdAt.toDate(),
+                  text: doc.data().text,
+                  user: doc.data().user,
+              }))
+          )});
+      }
+      getMessages();
+      }, [sessionId]);
 
+  const mensagemEnviada = useCallback((messages = []) => {
+      setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
+      const { _id, createdAt, text, user } = messages[0];
 
-    //função que aciona assim que envia a mensagem no aplicativo
-    const mensagemEnviada = useCallback((messages = []) => {
+      addDoc(collection(database, `chatSessions/${sessionId}/messages`), {
+          _id,
+          createdAt,
+          text,
+          user,
+      });
+  }, [sessionId]);
 
-        setMessages(previousMessages =>{
-              GiftedChat.append(previousMessages, messages)
+  
 
-            }
-        );
-        const { _id, createdAt, text, user } = messages[0];
-
-        addDoc(collection(database, "chats"), {
-            _id,
-            createdAt,
-            text,
-            user,
-        });
-    }, []);
-    
     return (
         <GiftedChat
           messages={messages}
