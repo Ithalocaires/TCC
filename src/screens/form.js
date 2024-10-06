@@ -9,12 +9,9 @@ const Form = ({navigation}) => {
         const [obs, setObservacoes] = useState('');
         const handleSusCardChange =  (text) => {
             {/*Remove qualquer caractere que não seja número*/}
-            const cleanedText = text.replace(/[^0-9]/g, '');
+            const cleanedText = text.replace(/[^0-9]/g, '').replace(/\s+/g, '').replace(/\D/g, '');
 
-            {/*Formata o texto com espaços*/}
-            const formattedText = cleanedText.replace(/(\d{2})(\d{4})(\d{4})(\d{4})/, '$1 $2 $3 $4');
-
-            setSusCard(formattedText);
+            setSusCard(cleanedText);
         };
         
       
@@ -43,13 +40,77 @@ const Form = ({navigation}) => {
                 });
                 sessionId = newSession.id;
             }
+
+            // if(!validaCarteirinha()) {
+            //     return;
+            // }
+                
     
             navigation.navigate('Chat', { sessionId, name, susCard, obs });
         };
 
+        const validaCarteirinha = () => {
+            let numeroSUS = susCard; // número da carteirinha do SUS
+        
+            // Verifica se o número possui 15 dígitos
+            if (numeroSUS.length !== 15 || isNaN(numeroSUS)) {
+                Alert.alert('Atenção', 'Número de identificação inválido. Deve conter 15 dígitos numéricos.');
+                return false;
+            }
+        
+            // Função para validar usando módulo 11
+            const validaCNS = (numero) => {
+                let soma = 0;
+                let peso = 15;
+        
+                for (let i = 0; i < 14; i++) {
+                    soma += parseInt(numero[i]) * peso;
+                    peso--;
+                }
+        
+                let resto = soma % 11;
+                let digitoVerificador = resto === 0 || resto === 1 ? 0 : 11 - resto;
+        
+                return digitoVerificador === parseInt(numero[14]);
+            };
+        
+            // Verifica se o número do SUS passa na validação de módulo 11
+            if (!validaCNS(numeroSUS)) {
+                Alert.alert('Atenção', 'Número de identificação inválido. Falha na verificação do dígito.');
+                return false;
+            }
+        
+            return true;
+        };
+
+        const handleSubmitMedico = async () => {
+            let sessionId;
+            const sessionsQuery = query(collection(database, 'chatSessions'), where('userCount', '<', 2));
+            const sessionSnapshot = await getDocs(sessionsQuery);
+    
+            if (!sessionSnapshot.empty) {
+                // Se existir uma sessão com menos de dois usuários, use essa sessão
+                const sessionDoc = sessionSnapshot.docs[0];
+                sessionId = sessionDoc.id;
+                await updateDoc(doc(database, 'chatSessions', sessionId), {
+                    userCount: sessionDoc.data().userCount + 1
+                });
+            } else {
+                // Caso contrário, crie uma nova sessão
+                const newSession = await addDoc(collection(database, 'chatSessions'), {
+                    userCount: 1
+                });
+                sessionId = newSession.id;
+            }
+
+            navigation.navigate('ChatMedico', {sessionId, name, susCard, obs});
+        }
+
+
     return (
         <View style={Styles.formView}>
             <Text style={Styles.formTextBlue}>Por favor insira os dados abaixo para continuar com a consulta</Text>
+
             <TextInput
             style={Styles.formInput}
             placeholder="Digite seu nome"
@@ -59,6 +120,7 @@ const Form = ({navigation}) => {
             placeholderTextColor="#999"
             marginTop={70}
             />
+
             <TextInput
             style={Styles.formInput}
             placeholder="Digite o número da carteirinha SUS"
@@ -67,8 +129,11 @@ const Form = ({navigation}) => {
             color='black'
             placeholderTextColor="#999"
             keyboardType="numeric"
+            maxLength={15} 
             />
+
             <Text style={Styles.textInfo}>Insira neste campo informações, como sintomas e a quanto tempo está se sentindo dessa forma</Text>
+
             <TextInput
             style={Styles.formInputObs}
             placeholder="Digite suas observações"
@@ -78,8 +143,13 @@ const Form = ({navigation}) => {
             placeholderTextColor="#999"
             multiline
             />
+
             <TouchableOpacity style={Styles.confirmBtn} onPress={handleSubmit}>
                 <Text style={Styles.confirmBtnText}>Confirmar dados</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={Styles.confirmBtn} onPress={handleSubmitMedico}>
+                <Text style={Styles.confirmBtnText}>AcessarChatMédico</Text>
             </TouchableOpacity>
         </View>
     )
