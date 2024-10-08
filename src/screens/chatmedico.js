@@ -3,23 +3,52 @@ import { View, Modal, StyleSheet, TextInput, TouchableOpacity, Text, Alert } fro
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { GiftedChat } from 'react-native-gifted-chat';
 import { collection, addDoc, onSnapshot, query, orderBy } from "firebase/firestore";
+import DateTimePicker from '@react-native-community/datetimepicker';  // Importa o DateTimePicker
 import { database } from "../../config/firebase";
 import Icon from 'react-native-vector-icons/FontAwesome'; // Ícones
 
 export default function ChatScreenMedico() {
     const [messages, setMessages] = useState([]);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalAtestadoVisible, setModalAtestadoVisible] = useState(false);
     const navigation = useNavigation();
     const route = useRoute();
     const { sessionId, name } = route.params;
-    const [modalVisible, setModalVisible] = useState(false);
-    const [modalAtestadoVisible, setModalAtestadoVisible] = useState(false);
     const [nome, setNome] = useState('');
     const [cartaoSUS, setCartaoSUS] = useState('');
+    const [dataInicio, setDataInicio] = useState(new Date());
+    const [dataFim, setDataFim] = useState(new Date());
+    const [causaAtestado, setCausaAtestado] = useState('');
+    const [showInicioPicker, setShowInicioPicker] = useState(false);
+    const [showFimPicker, setShowFimPicker] = useState(false);
+
+    const toggleModal = () => setModalVisible(!modalVisible);
+    const toggleModalAtestado = () => setModalAtestadoVisible(!modalAtestadoVisible);
+
+    const onChangeInicio = (event, selectedDate) => {
+        if (event.type === "set") {
+            const currentDate = selectedDate || dataInicio;
+            setDataInicio(currentDate);
+        }
+        setShowInicioPicker(false);
+    };
+    
+    const onChangeFim = (event, selectedDate) => {
+        if (event.type === "set") {
+            const currentDate = selectedDate || dataFim;
+            setDataFim(currentDate);
+        }
+        setShowFimPicker(false);
+    };
 
     useEffect(() => {
-        async function getMessages() {
-            const values = query(collection(database, `chatSessions/${sessionId}/messages`), orderBy('createdAt', 'desc'));
-            onSnapshot(values, (snapshot) => {
+        const getMessages = () => {
+            const values = query(
+                collection(database, `chatSessions/${sessionId}/messages`), 
+                orderBy('createdAt', 'desc')
+            );
+            
+            const unsubscribe = onSnapshot(values, (snapshot) => {
                 setMessages(
                     snapshot.docs.map(doc => ({
                         _id: doc.data()._id,
@@ -29,7 +58,10 @@ export default function ChatScreenMedico() {
                     }))
                 );
             });
-        }
+    
+            return unsubscribe; // Retorna a função de limpeza para remover o ouvinte
+        };
+    
         getMessages();
     }, [sessionId]);
 
@@ -45,17 +77,14 @@ export default function ChatScreenMedico() {
         });
     }, [sessionId]);
 
-    const toggleModal = () => {
-        setModalVisible(!modalVisible);
-    };
-
-    const toggleModalAtestado = () => {
-        setModalAtestadoVisible(!modalAtestadoVisible);
-    };
-
     const handleSubmit = () => {
         console.log(`Nome: ${nome}, Cartão SUS: ${cartaoSUS}`);
         setModalVisible(false);
+    };
+
+    const handleSubmitAtestado = () => {
+        console.log(`Data inicio: ${dataInicio}, Data final: ${dataFim}, Descrição do atestado: ${causaAtestado}`);
+        setModalAtestadoVisible(false);
     };
 
     const handleLogout = () => {
@@ -82,7 +111,8 @@ export default function ChatScreenMedico() {
                 messages={messages}
                 onSend={msg => mensagemEnviada(msg)}
                 user={{
-                    _id: name,
+                    _id: sessionId,  // Certifique-se que seja um identificador único
+                    name: nome,      // Opcional, pode incluir um campo de nome
                 }}
             />
 
@@ -149,18 +179,58 @@ export default function ChatScreenMedico() {
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>Gerar Atestado</Text>
-                        {/* Adicione aqui o conteúdo do modal de atestado */}
-                        <Text>Conteúdo do Atestado</Text>
+
+                        {/* Seleção de Data de Início */}
+                        <TouchableOpacity onPress={() => setShowInicioPicker(true)} style={styles.dateButton}>
+                            <Text style={styles.dateButtonText}>Selecione a Data de Início</Text>
+                        </TouchableOpacity>
+                        {showInicioPicker && (
+                            <DateTimePicker
+                                value={dataInicio}
+                                mode="date"
+                                display="default"
+                                onChange={onChangeInicio}
+                            />
+                        )}
+                        <Text>Data de Início: {dataInicio.toLocaleDateString()}</Text>
+
+                        {/* Seleção de Data de Fim */}
+                        <TouchableOpacity onPress={() => setShowFimPicker(true)} style={styles.dateButton}>
+                            <Text style={styles.dateButtonText}>Selecione a Data de Fim</Text>
+                        </TouchableOpacity>
+                        {showFimPicker && (
+                            <DateTimePicker
+                                value={dataFim}
+                                mode="date"
+                                display="default"
+                                onChange={onChangeFim}
+                            />
+                        )}
+                        <Text>Data de Fim: {dataFim.toLocaleDateString()}</Text>
+
+                        {/* Campo para a Causa do Atestado */}
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Causa do Atestado"
+                            value={causaAtestado}
+                            onChangeText={setCausaAtestado}
+                            multiline={true}  // Permite múltiplas linhas
+                        />
 
                         <TouchableOpacity onPress={toggleModalAtestado} style={styles.closeButton}>
                             <Text style={styles.closeButtonText}>Fechar</Text>
                         </TouchableOpacity>
+
+                        <TouchableOpacity onPress={handleSubmitAtestado} style={styles.button}>
+                            <Text style={styles.buttonText}>Enviar</Text>
+                        </TouchableOpacity>
+
                     </View>
                 </View>
             </Modal>
         </View>
     );
-};
+}
 
 const styles = StyleSheet.create({
     headerButton: {
@@ -258,5 +328,33 @@ const styles = StyleSheet.create({
     logoutButtonText: {
         color: 'white',
         fontSize: 16,
+    },
+    dateButton: {
+        backgroundColor: '#0071CF',  // Cor de fundo
+        paddingVertical: 12,  // Espaçamento vertical
+        paddingHorizontal: 20,  // Espaçamento horizontal
+        borderRadius: 25,  // Borda arredondada
+        alignItems: 'center',  // Centraliza o texto
+        justifyContent: 'center',
+        shadowColor: '#000',  // Cor da sombra
+        shadowOffset: { width: 0, height: 2 },  // Posição da sombra
+        shadowOpacity: 0.2,  // Opacidade da sombra
+        shadowRadius: 3,  // Tamanho da sombra
+        elevation: 3,  // Para sombra em Android
+        marginVertical: 10,  // Margem vertical para espaçamento entre botões
+    },
+    dateButtonText: {
+        color: 'white',  // Cor do texto
+        fontSize: 16,  // Tamanho do texto
+        fontWeight: 'bold',  // Peso da fonte
+        letterSpacing: 0.5,  // Espaçamento entre letras
+    },
+    signatureContainer: {
+        marginVertical: 20,
+        alignItems: 'center',
+    },
+    signature: {
+        width: 150,
+        height: 50,
     },
 });
