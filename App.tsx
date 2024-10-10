@@ -3,6 +3,7 @@ import HomeScreen from './src/screens/home';
 import Form from './src/screens/form'; 
 import ChatScreen from './src/screens/chat';
 import SplashScreen from './src/screens/loading';
+import ChatScreenMedico from './src/screens/chatmedico';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import 'react-native-gesture-handler'
@@ -34,6 +35,9 @@ const App = () => {
 
         {/*Tela Consulta*/}
         <Stack.Screen name="Chat" component={ChatScreen} options={{title: ''}} />
+
+        {/*Tela Consulta Médico*/}
+        <Stack.Screen name="ChatMedico" component={ChatScreenMedico} options={{title: ''}} />
       </Stack.Navigator>
     </NavigationContainer>
   )
