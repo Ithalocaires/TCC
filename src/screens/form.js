@@ -3,52 +3,69 @@ import { View, Text, TouchableOpacity, StyleSheet, TextInput, Alert } from 'reac
 import { addDoc, collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
 import { database } from "../../config/firebase";
 
-const Form = ({navigation}) => {
-        const [name, setName] = useState('');
-        const [susCard, setSusCard] = useState('');
-        const [obs, setObservacoes] = useState('');
-        const handleSusCardChange =  (text) => {
-            {/*Remove qualquer caractere que não seja número*/}
-            const cleanedText = text.replace(/[^0-9]/g, '').replace(/\s+/g, '').replace(/\D/g, '');
+// Importe sua configuração do Firebase
 
-            setSusCard(cleanedText);
-        };
+const Form = ({ navigation } , userRole) => { // userRole pode ser 'medico' ou 'paciente'
+    const [name, setName] = useState('');
+    const [susCard, setSusCard] = useState('');
+    const [obs, setObservacoes] = useState('');
+
+    const handleSusCardChange = (text) => {
+        const cleanedText = text.replace(/[^0-9]/g, '').replace(/\s+/g, '');
+        setSusCard(cleanedText);
+    };
+
+    // Função para gerar um ID único baseado no susCard
+    const gerarIdUsuario = (susCard) => {
+        let hash = 0;
+        for (let i = 0; i < susCard.length; i++) {
+            const char = susCard.charCodeAt(i);
+            hash = (hash << 5) - hash + char;
+            hash |= 0; // Converte para 32 bits
+        }
+        return hash.toString();
+    };
+
+    const handleSubmitMedico = async () => {
+        let sessionId;
+        const sessionsQuery = query(collection(database, 'chatSessions'), where('userCount', '<', 2));
+        const sessionSnapshot = await getDocs(sessionsQuery);
+
+        if (!sessionSnapshot.empty) {
+            const sessionDoc = sessionSnapshot.docs[0];
+            sessionId = sessionDoc.id;
+            await updateDoc(doc(database, 'chatSessions', sessionId), {
+                userCount: sessionDoc.data().userCount + 1
+            });
+        } else {
+            const newSession = await addDoc(collection(database, 'chatSessions'), {
+                userCount: 1
+            });
+            sessionId = newSession.id;
+        }
+
+        navigation.navigate('ChatMedico', { sessionId, name, susCard, obs });
+    };
+
+    const handleSubmitPaciente = async () => {
+        if (!name.trim() || !susCard.trim() || !obs.trim()) {
+            Alert.alert('Atenção', 'Por favor, preencha todos os campos.');
+            return;
+        }
+
+        const userId = gerarIdUsuario(susCard);
         
-      
-          
-          const handleSubmit = async () => {
-            if (!name.trim() || !susCard.trim() || !obs.trim()) {
-              Alert.alert('Atenção', 'Por favor, preencha todos os campos.');
-              return;
-            }
-            
-            let sessionId;
-            const sessionsQuery = query(collection(database, 'chatSessions'), where('userCount', '<', 2));
-            const sessionSnapshot = await getDocs(sessionsQuery);
-    
-            if (!sessionSnapshot.empty) {
-                // Se existir uma sessão com menos de dois usuários, use essa sessão
-                const sessionDoc = sessionSnapshot.docs[0];
-                sessionId = sessionDoc.id;
-                await updateDoc(doc(database, 'chatSessions', sessionId), {
-                    userCount: sessionDoc.data().userCount + 1
-                });
-            } else {
-                // Caso contrário, crie uma nova sessão
-                const newSession = await addDoc(collection(database, 'chatSessions'), {
-                    userCount: 1
-                });
-                sessionId = newSession.id;
-            }
+        // Lógica do paciente, onde ele é redirecionado para a sala de espera
+        navigation.navigate('WaitRoom', { name, susCard, obs, userId });
+    };
 
-            // if(!validaCarteirinha()) {
-            //     return;
-            // }
-                
-    
-            navigation.navigate('Chat', { sessionId, name, susCard, obs });
-        };
-
+    const handleSubmit = () => {
+        if (userRole === 'medico') {
+            handleSubmitMedico();
+        } else {
+            handleSubmitPaciente();
+        }
+    };
         const validaCarteirinha = () => {
             let numeroSUS = susCard; // número da carteirinha do SUS
         
@@ -83,28 +100,7 @@ const Form = ({navigation}) => {
             return true;
         };
 
-        const handleSubmitMedico = async () => {
-            let sessionId;
-            const sessionsQuery = query(collection(database, 'chatSessions'), where('userCount', '<', 2));
-            const sessionSnapshot = await getDocs(sessionsQuery);
     
-            if (!sessionSnapshot.empty) {
-                // Se existir uma sessão com menos de dois usuários, use essa sessão
-                const sessionDoc = sessionSnapshot.docs[0];
-                sessionId = sessionDoc.id;
-                await updateDoc(doc(database, 'chatSessions', sessionId), {
-                    userCount: sessionDoc.data().userCount + 1
-                });
-            } else {
-                // Caso contrário, crie uma nova sessão
-                const newSession = await addDoc(collection(database, 'chatSessions'), {
-                    userCount: 1
-                });
-                sessionId = newSession.id;
-            }
-
-            navigation.navigate('ChatMedico', {sessionId, name, susCard, obs});
-        }
 
 
     return (
