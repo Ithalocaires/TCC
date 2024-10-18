@@ -1,15 +1,16 @@
 import { useRoute } from "@react-navigation/native";
 import { GiftedChat, Bubble } from 'react-native-gifted-chat';
-import { useCallback, useEffect, useState } from "react";
-import { collection, addDoc, onSnapshot, query, orderBy } from "firebase/firestore";
+import { useCallback, useEffect, useState, TouchableOpacity, Text, TextInput, Modal } from "react";
+import { KeyboardAvoidingView, Platform, StyleSheet, View, Alert } from 'react-native';
+import { collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc } from "firebase/firestore";
 import { database } from "../../config/firebase";
+import Icon from 'react-native-vector-icons/FontAwesome'; // Ícones
 
 export default function ChatScreen() {
     const [messages, setMessages] = useState([]);
     const route = useRoute();
-    const { sessionId, name, userRole, userId } = route.params; 
+    const { sessionId, name, userRole, userId } = route.params; // Certifique-se de que userId está sendo passado corretamente
 
-    //Pesquisa as mensagens no Firebase
     useEffect(() => {
         const getMessages = async () => {
             try {
@@ -27,7 +28,6 @@ export default function ChatScreen() {
                 });
             } catch (error) {
                 console.error("Erro ao buscar mensagens: ", error);
-                //Erro caso o cliente perca conexão com o servidor e não possa buscar mensagens
             }
         };
         getMessages();
@@ -69,11 +69,9 @@ export default function ChatScreen() {
         });
     }, [sessionId, userRole]);
 
-
-    // Função para estilizar bolha do chat
     const renderBubble = (props) => {
         const isCurrentUser = props.currentMessage.user._id === userId;
-        const backgroundColor = isCurrentUser ? '#003770' : '#0071CF';
+        const backgroundColor = isCurrentUser ? '#D1E8FF' : '#FFEBE8';
         return (
             <Bubble
                 {...props}
@@ -89,34 +87,161 @@ export default function ChatScreen() {
                 }}
                 textStyle={{
                     right: {
-                        color: '#fff'
+                        color: '#000'
                     },
                     left: {
-                        color: '#fff'
+                        color: '#000'
                     }
                 }}
             />
         );
     };
 
+    const handleFinish = () => {
+        Alert.alert(
+            "Sair",
+            "Você tem certeza que deseja sair?",
+            [
+                { text: "Cancelar", style: "cancel" },
+                {
+                    text: "Sim",
+                    onPress: async () => {
+                        try {
+                            const patientDoc = doc(database, 'waitRoom', userId);
+                            await updateDoc(patientDoc, {
+                                chatActive: false
+                            });
+                            navigation.navigate("Home"); 
+                        } catch (error) {
+                            console.error("Erro ao finalizar o atendimento:", error);
+                        }
+                    }
+                },
+            ],
+            { cancelable: false }
+        );
+    }
+
     return (
-        <GiftedChat
-            messages={messages}
-            onSend={msg => mensagemEnviada(msg)}
-            user={{
-                _id: userId || 'anon',
-                name: name || 'Anônimo',
-                userRole: userRole || 'desconhecido'
-            }}
-            renderBubble={renderBubble}
-            renderAvatar={null}
-            textInputStyle={{
-                color: '#000',
-                backgroundColor: '#FFF'
-            }}
-            isCustomViewBottom={false}
-            keyboardShouldPersistTaps='handled' // Garante que o teclado não feche inesperadamente
-            alwaysShowSend 
-        />
+        <View style={{ flex: 1 }}>
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+            >
+                 <GiftedChat
+                    messages={messages}
+                    onSend={msg => mensagemEnviada(msg)}
+                    user={{
+                        _id: userId || 'anon',
+                        name: name || 'Anônimo',
+                        userRole: userRole || 'desconhecido'
+                    }}
+                    renderBubble={renderBubble}
+                    renderAvatar={null}
+                    textInputStyle={{
+                        color: '#000',
+                        backgroundColor: '#FFF'
+                    }}
+                    isCustomViewBottom={false}
+                    keyboardShouldPersistTaps='handled' // Garante que o teclado não feche inesperadamente
+                    alwaysShowSend 
+                />
+
+                {userRole === 'medico' && (
+                    <View style={styles.footer}>
+                        <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.receitaButton}>
+                            <Icon name="file-text-o" size={20} color="white" />
+                            <Text style={styles.receitaButtonText}>Receita</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={handleFinish} style={styles.logoutButton}>
+                            <Text style={styles.logoutButtonText}>Finalizar</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
+
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalVisible}
+                    onRequestClose={() => setModalVisible(false)}
+                >
+                    <View style={styles.modalContainer}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Preencha o Formulário</Text>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Digite seu nome"
+                                value={nome}
+                                onChangeText={setNome}
+                            />
+                            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.button}>
+                                <Text style={styles.buttonText}>Enviar</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+            </KeyboardAvoidingView>
+        </View>
     );
 }
+
+const styles = StyleSheet.create({
+    footer: {
+        padding: 10,
+        backgroundColor: '#f0f0f0',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    receitaButton: {
+        backgroundColor: '#0071CF',
+        padding: 10,
+        borderRadius: 5,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    logoutButton: {
+        backgroundColor: 'red',
+        padding: 10,
+        borderRadius: 5,
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    modalContent: {
+        width: 300,
+        padding: 20,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    input: {
+        width: '100%',
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        padding: 10,
+        marginBottom: 15,
+    },
+    button: {
+        backgroundColor: '#0071CF',
+        padding: 10,
+        borderRadius: 5,
+        width: '100%',
+        alignItems: 'center',
+    },
+    buttonText: {
+        color: 'white',
+        fontSize: 16,
+    },
+});
