@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Button } from 'react-native';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
+import {atestado} from "src\screens\pdf-atestado.js";
 
 const MedicalCertificateWithButton = () => {
   
