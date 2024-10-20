@@ -3,7 +3,7 @@ import { View, Modal, StyleSheet, TextInput, TouchableOpacity, Text, Alert } fro
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { GiftedChat } from 'react-native-gifted-chat';
 import { collection, addDoc, onSnapshot, query, orderBy } from "firebase/firestore";
-import DateTimePicker from '@react-native-community/datetimepicker';  // Importa o DateTimePicker
+// import DateTimePicker from '@react-native-community/datetimepicker';  // Importa o DateTimePicker
 import { database } from "../../config/firebase";
 import Icon from 'react-native-vector-icons/FontAwesome'; // Ícones
 
