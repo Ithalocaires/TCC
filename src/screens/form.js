@@ -1,21 +1,21 @@
 import React, {useState} from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, Alert } from 'react-native'
-import { addDoc, collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
+import { addDoc, collection, query, where, getDocs, updateDoc, doc, setDoc } from "firebase/firestore";
 import { database } from "../../config/firebase";
 
-// Importe sua configuração do Firebase
 
 const Form = ({ navigation } , userRole) => { // userRole pode ser 'medico' ou 'paciente'
     const [name, setName] = useState('');
     const [susCard, setSusCard] = useState('');
     const [obs, setObservacoes] = useState('');
 
+    // Função para evitar a entrada de caracteres que não sejam números
     const handleSusCardChange = (text) => {
         const cleanedText = text.replace(/[^0-9]/g, '').replace(/\s+/g, '');
         setSusCard(cleanedText);
-    };
+    };  
 
-    // Função para gerar um ID único baseado no susCard
+    // Função para gerar um ID único baseado na carterinha SUS do paciente
     const gerarIdUsuario = (susCard) => {
         let hash = 0;
         for (let i = 0; i < susCard.length; i++) {
@@ -27,24 +27,7 @@ const Form = ({ navigation } , userRole) => { // userRole pode ser 'medico' ou '
     };
 
     const handleSubmitMedico = async () => {
-        let sessionId;
-        const sessionsQuery = query(collection(database, 'chatSessions'), where('userCount', '<', 2));
-        const sessionSnapshot = await getDocs(sessionsQuery);
-
-        if (!sessionSnapshot.empty) {
-            const sessionDoc = sessionSnapshot.docs[0];
-            sessionId = sessionDoc.id;
-            await updateDoc(doc(database, 'chatSessions', sessionId), {
-                userCount: sessionDoc.data().userCount + 1
-            });
-        } else {
-            const newSession = await addDoc(collection(database, 'chatSessions'), {
-                userCount: 1
-            });
-            sessionId = newSession.id;
-        }
-
-        navigation.navigate('ChatMedico', { sessionId, name, susCard, obs });
+        navigation.navigate('WaitRoom', {userRole: 'medico'});
     };
 
     const handleSubmitPaciente = async () => {
@@ -54,11 +37,27 @@ const Form = ({ navigation } , userRole) => { // userRole pode ser 'medico' ou '
         }
 
         const userId = gerarIdUsuario(susCard);
-        
-        // Lógica do paciente, onde ele é redirecionado para a sala de espera
-        navigation.navigate('WaitRoom', { name, susCard, obs, userId });
+        console.log('ID do usuário gerado:', userId); // Log do ID do usuário
+
+        // Adiciona o paciente à sala de espera
+        try {
+            await setDoc(doc(database, 'waitRoom', userId), {
+                name,
+                susCard,
+                obs,
+                chatActive: false,
+                createdAt: new Date() 
+            });
+            console.log('Paciente adicionado à sala de espera'); // Log da adição do paciente
+        } catch (error) {
+            console.error('Erro ao adicionar paciente:', error);
+        }
+
+        // Redireciona o paciente para a sala de espera
+        navigation.navigate('WaitRoom', { userRole: 'paciente', name, susCard, obs, userId });
     };
 
+    // Adiciona o userRole ao usuário para prosseguir com o uso do App normalmente
     const handleSubmit = () => {
         if (userRole === 'medico') {
             handleSubmitMedico();
