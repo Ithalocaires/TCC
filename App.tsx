@@ -4,9 +4,12 @@ import Form from './src/screens/form';
 import ChatScreen from './src/screens/chat';
 import SplashScreen from './src/screens/loading';
 import WaitRoom from './src/screens/waitRoom';
+import LoginScreen from './src/screens/login';
+import SignUpPaciente from './src/screens/signUpPaciente';
+import SignUpMedico from './src/screens/signUpMedico';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import 'react-native-gesture-handler'
+import 'react-native-gesture-handler';
 
 
 const Stack = createStackNavigator();
@@ -38,6 +41,15 @@ const App = () => {
 
         {/*Tela de espera dos pacientes*/}
         <Stack.Screen name="WaitRoom" component={WaitRoom} options={{title: ''}} />
+
+        {/*Tela de Login*/}
+        <Stack.Screen name="Login" component={LoginScreen} options={{title: ''}} />
+
+        {/*Tela de Cadastro Paciente*/}
+        <Stack.Screen name="Cadastro Paciente" component={SignUpPaciente} options={{title: ''}} />
+
+        {/*Tela de Cadastro Médico*/}
+        <Stack.Screen name="Cadastro Médico" component={SignUpMedico} options={{title: ''}} />
       </Stack.Navigator>
     </NavigationContainer>
   )
