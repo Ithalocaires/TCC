@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Button } from 'react-native';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
-import {atestado} from "src\screens\pdf-atestado.js";
 
 const MedicalCertificateWithButton = () => {
   
@@ -20,15 +19,15 @@ const MedicalCertificateWithButton = () => {
 
         <p>Eu, Dr. Fulano de Tal, CRM 123456, atesto que o(a) paciente:</p>
 
-        <p><strong>Nome:</strong> [Nome do Paciente]</p>
+        <p><strong>Nome:</strong> ${nomePaciente}</p>
         <p><strong>Data de Nascimento:</strong> [Data de Nascimento]</p>
         <p><strong>CPF:</strong> [CPF do Paciente]</p>
 
         <p>Encontra-se sob meus cuidados médicos e deverá permanecer afastado de suas atividades laborais pelo período de:</p>
 
-        <p><strong>[X] dias</strong>, a contar da presente data.</p>
+        <p><strong>${periodoAfastado} dias</strong>, a contar da presente data.</p>
 
-        <p>Data de emissão: <strong>${new Date().toLocaleDateString()}</strong></p>
+        <p>Data de emissão: <strong>${startDate.toLocaleDateString('pt-BR')}</strong></p>
 
         <br/>
         <p>______________________________</p>

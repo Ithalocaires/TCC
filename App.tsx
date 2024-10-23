@@ -3,7 +3,6 @@ import HomeScreen from './src/screens/home';
 import Form from './src/screens/form'; 
 import ChatScreen from './src/screens/chat';
 import SplashScreen from './src/screens/loading';
-import ChatScreenMedico from './src/screens/chatmedico';
 import WaitRoom from './src/screens/waitRoom';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -36,9 +35,6 @@ const App = () => {
 
         {/*Tela Consulta*/}
         <Stack.Screen name="Chat" component={ChatScreen} options={{title: ''}} />
-
-        {/*Tela Consulta Médico*/}
-        <Stack.Screen name="ChatMedico" component={ChatScreenMedico} options={{title: ''}} />
 
         {/*Tela de espera dos pacientes*/}
         <Stack.Screen name="WaitRoom" component={WaitRoom} options={{title: ''}} />
