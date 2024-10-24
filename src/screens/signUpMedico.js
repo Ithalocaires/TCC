@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import {createUserWithEmailAndPassword } from 'firebase/auth';
-import {doc, setDoc } from 'firebase/firestore';
-import { useNavigation } from '@react-navigation/native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { View, TextInput, StyleSheet, Text, TouchableOpacity } from 'react-native';  //Componentes para renderização do frontend
+import { createUserWithEmailAndPassword } from 'firebase/auth';  //Busca a propriedade de autênticação no Firebase
+import { doc, setDoc } from 'firebase/firestore';  //Busca as propriedades necessárias para adicionar elementos no Firestore
+import { useNavigation } from '@react-navigation/native';  // Biblioteca que permite a navegação entre telas
+import DateTimePicker from '@react-native-community/datetimepicker';  //Componente para escolher uma data
 import { auth, database } from "../../config/firebase";
 
 const SignUpMedico = () => {
@@ -17,34 +17,46 @@ const SignUpMedico = () => {
     const navigation = useNavigation();
 
     const onChangeDate = (event, selectedDate) => {
-        const currentDate = selectedDate || dataNascimento;
-        setShowDatePicker(false);
-        setDataNascimento(currentDate);
+        if (event.type === 'set') { // Verifica se o usuário selecionou uma data
+            const currentDate = selectedDate || dataNascimento;
+            //Iguala a data selecionada à data de nascimento do usuário
+            setDataNascimento(currentDate);
+        }
+        setShowDatePicker(false); // Fecha o DateTimePicker após selecionar a data
     };
 
+    //Função para registrar usuários (Méidico)
     const handleRegister = () => {
+        //Cria um usuário utilizando o email e a senha como autênticação
         createUserWithEmailAndPassword(auth, email, senha)
+            //Vincula as credenciais ao usuário cadastrado
             .then((userCredential) => {
+                //Armazena as informações de cada campo no banco "pacientes"
                 const userId = userCredential.user.uid;
                 setDoc(doc(database, 'medicos', userId), {
                     nome,
                     email,
-                    cartaoSUS: CRM,
+                    CRM,
                     dataNascimento,
                     rg,
                 }).then(() => {
+                     //Caso o cadastro seja feito com sucesso ele irá informar o usuário que foi cadastrado e navegará para a tela de login novamente
                     console.log('Médico cadastrado com sucesso!');
                     navigation.navigate('Login');
                 }).catch(error => {
+                    // Caso aconteça algum erro irá informar ao usuário
                     console.error('Erro ao cadastrar Médico:', error);
                     alert('Erro ao cadastrar. Tente novamente.');
                 });
             })
             .catch(error => {
+                // Caso aconteça algum erro irá informar ao usuário
                 console.error('Erro ao criar conta:', error);
                 alert('Erro ao criar conta. Tente novamente.');
             });
     };
+
+    //Renderização do Frontend
 
     return (
         <View style={styles.container}>
@@ -69,7 +81,7 @@ const SignUpMedico = () => {
                 onChangeText={setCRM}
             />
             <View style={styles.row}>
-                <TouchableOpacity onPress={() => setShow(true)}>
+                <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                     <TextInput
                         style={styles.datePicker}
                         placeholder="Data de Nascimento"
@@ -77,7 +89,7 @@ const SignUpMedico = () => {
                         editable={false}
                     />
                 </TouchableOpacity>
-                {show && (
+                {showDatePicker && (
                     <DateTimePicker
                         value={dataNascimento}
                         mode="date"
@@ -110,10 +122,6 @@ const SignUpMedico = () => {
 };
 
 const styles = StyleSheet.create({
-    title: {
-        fontSize: 24,
-        marginBottom: 16,
-    },
     container: {
         flex: 1,
         justifyContent: 'center',
@@ -121,22 +129,28 @@ const styles = StyleSheet.create({
         padding: 16,
     },
     title: {
-        fontSize: 24,
-        marginBottom: 16,
+        fontSize: 20,  
+        marginBottom: 20,
+        marginTop: 10,
+        color: '#53affa',
+        alignItems: 'center',
+        marginTop: 25,
+        fontWeight: 'bold', 
+        textAlign: 'center',
     },
     input: {
         width: '90%',
         padding: 10,
         marginVertical: 10,
         borderWidth: 1,
-        borderRadius: 8,
+        borderRadius: 15,
         borderColor: '#ccc',
     },
     datePicker:{
         padding: 10,
         marginVertical: 10,
         borderWidth: 1,
-        borderRadius: 8,
+        borderRadius: 15,
         borderColor: '#ccc',
         
     },
@@ -145,7 +159,7 @@ const styles = StyleSheet.create({
         padding: 10,
         marginVertical: 10,
         borderWidth: 1,
-        borderRadius: 8,
+        borderRadius: 15,
         borderColor: '#ccc',
     },
     button: {
@@ -166,12 +180,11 @@ const styles = StyleSheet.create({
     },
     buttonSubmit: {
         padding: 12,
-        backgroundColor: '#007BFF',
-        padding: 10,
         borderRadius: 8,
-        width: '90%',
         alignItems: 'center',
-        marginVertical: 10,
+        borderRadius: 20,
+        width: '90%',
+        backgroundColor: '#0071CF',
     },
     textSubmit: {  
         color: 'white', 

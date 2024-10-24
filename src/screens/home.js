@@ -14,12 +14,12 @@ const HomeScreen = ({navigation}) => {
                     Você não está logado.
                 </Text>
                 <Text style={Styles.headerText}>
-                    Entre com Gov.br e acesse todos os serviços do SUS Digital.
+                    Faça login para prosseguir.
                 </Text>
 
                 {/*Botão Login */}
                 <TouchableOpacity style={Styles.loginBtn} onPress={() => navigation.navigate('Login')}>
-                    <Text style={Styles.loginBtnText}>Entrar com Gov.br</Text>
+                    <Text style={Styles.loginBtnText}>Login</Text>
                 </TouchableOpacity>
 
                 {/*Container azul na parte inferior */}
@@ -124,7 +124,7 @@ const Styles = StyleSheet.create({
         borderRadius: 8,
         alignItems: 'center',
         borderRadius: 20,
-        width: 300,
+        width: '80%',
         backgroundColor: '#0071CF',
     },
     loginBtnText:{
@@ -136,38 +136,38 @@ const Styles = StyleSheet.create({
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         paddingVertical: 10,
-        paddingHorizontal: 15,
+        paddingHorizontal: '0%',
         marginTop: 70,
         width: '110%',
         flex: 1,
-        marginBottom: -20,
     },
     bodyText:{
         fontSize:16,
         fontWeight:'bold',
-        marginLeft:21,
+        marginBottom:10,
+        marginLeft:'5%',
         color:'white',
         textAlign:'justify',
     },
     bodyBtn:{
         alignItems: 'center',
         width: 72,
-        marginLeft: 15,
-        marginTop: 15,
-        marginHorizontal: 5,
+        marginLeft: '6%',
+        marginTop: '5%',
+
     },
     bodyBtnText:{
-        marginTop: -5,
+        marginTop: '10%',
         color:'white',
         textAlign:'center',
     },
     bodyBtnText2:{
-        marginTop: 12,
+        marginTop: '10%',
         color:'white',
         textAlign: 'center',
     },
     btnContainer:{
-        height:120,
+        height:'40%',
         flexDirection: 'row',
     },
 })

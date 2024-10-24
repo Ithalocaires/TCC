@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, TouchableOpacity, Text, View, ActivityIndicator, StyleSheet, Alert } from 'react-native';
-import { collection, getDocs, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy } from '@firebase/firestore';
+import { collection, getDocs, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy,  } from '@firebase/firestore';
 import { database } from "../../config/firebase";
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -10,6 +10,7 @@ const WaitRoom = ({ navigation, route }) => {
     const [loading, setLoading] = useState(true);
     
     const fetchPacientes = async () => {
+        // Coloca o estado o loading como True para os pacientes que forem buscados
         setLoading(true);
         try {
             const q = query(collection(database, 'waitRoom'), orderBy('createdAt', 'asc')); // Ordenar por createdAt em ordem ascendente (mais antigo primeiro)
@@ -45,22 +46,29 @@ const WaitRoom = ({ navigation, route }) => {
     }, [userRole, userId]);
 
     const handleSelectPaciente = async (paciente) => {
+        //  Aqui, a função cria uma referência ao documento do paciente no banco de dados Firestore com base na waitRoom e no ID do paciente
         const pacienteRef = doc(database, 'waitRoom', paciente.id);
 
         try {
+            // Busca o paciente no banco de dados
             const pacienteDoc = await getDoc(pacienteRef);
+
+            {/*Caso a propriedade chatActive seja true (significando que o paciente já está sendo atendido) emite um alerta informando ao usuário que o paciente
+             em questão já foi atendido e em seguida atualiza a página*/}
+
             if (pacienteDoc.exists() && pacienteDoc.data().chatActive) {
                 Alert.alert("Erro", "Esse paciente já está sendo atendido");
                 // Atualiza a lista de pacientes
                 fetchPacientes();
             } else {
                 await updateDoc(pacienteRef, {
-                    chatActive: true,
-                    sessionId: paciente.id
+                    chatActive: true, //Atualiza o estado do atendimento para True
+                    sessionId: paciente.id //Associa a sessão do chat ao ID do paciente
                 });
                 navigation.navigate('Chat', { sessionId: paciente.id, name: paciente.name, userRole: 'medico', userId: 'medico' }); // Passa userId como 'medico'
                 // Remove paciente da lista após iniciar o atendimento
                 await deleteDoc(pacienteRef);
+                // Atualiza a lista de pacientes removendo o paciente que está sendo atendido.
                 setPacientes(prevPacientes => prevPacientes.filter(p => p.id !== paciente.id));
             }
         } catch (error) {
@@ -73,6 +81,7 @@ const WaitRoom = ({ navigation, route }) => {
         fetchPacientes();
     };
 
+    //Caso o usuário seja um paciente o App irá mostra-lo uma tela de loading informando-o para aguardar
     if (loading) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -82,6 +91,7 @@ const WaitRoom = ({ navigation, route }) => {
         );
     }
 
+    //Caso o usuário seja um médico o App irá renderizar a Lista de espera normalmente
     if (userRole === 'medico') {
         return (
             <View style={styles.container}>
