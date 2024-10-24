@@ -139,7 +139,8 @@ const Styles = StyleSheet.create({
         paddingHorizontal: '0%',
         marginTop: 70,
         width: '110%',
-        flex: 1,
+        flex: 1,    
+        marginBottom: -20,
     },
     bodyText:{
         fontSize:16,

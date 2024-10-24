@@ -6,10 +6,13 @@ import { collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc } from "
 import { database } from "../../config/firebase";
 import Icon from 'react-native-vector-icons/FontAwesome'; // Ícones
 
-export default function ChatScreen() {
+const ChatScreen = () => {
     const [messages, setMessages] = useState([]);
     const route = useRoute();
     const { sessionId, name, userRole, userId } = route.params; // Certifique-se de que userId está sendo passado corretamente
+    const [modalVisible, setModalVisible] = useState();
+    const [nome, setNome] = useState();
+    
 
     useEffect(() => {
         const getMessages = async () => {
@@ -231,7 +234,7 @@ const styles = StyleSheet.create({
         borderColor: '#ccc',
         borderRadius: 5,
         padding: 10,
-        marginBottom: 15,
+        marginBottom: 20,
     },
     button: {
         backgroundColor: '#0071CF',
@@ -245,3 +248,5 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
 });
+
+export default ChatScreen;

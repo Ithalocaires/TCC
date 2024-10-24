@@ -1,23 +1,51 @@
-import React, { useState } from 'react'; // Componentes obrigatórios para o funcionamento do React
+import React, { useState, useEffect } from 'react'; // Componentes obrigatórios para o funcionamento do React
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native'; // Componentes nativos do React para o Front
 import { useNavigation } from '@react-navigation/native'; // Navegação para outras telas
 import { signInWithEmailAndPassword } from "firebase/auth"; //Autenticação Firebase
 import { database, auth } from "../../config/firebase"
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { User } from 'firebase/auth';
 
 const LoginScreen = () => {
     const [email, setEmail] = useState(''); 
     const [password, setPassword] = useState('');
     const navigation = useNavigation();
+    const [user, setUser] = useState<User | null>(null);
 
     const handleLogin = async () => {
         try {
-            await signInWithEmailAndPassword(auth, email, password); // Faz a autenticação dos campos "email" e "password" no banco de dados
-
-            navigation.navigate('Home'); // Nevega para a tela seguinte
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            
+            // Salva o token do usuário no AsyncStorage
+            await AsyncStorage.setItem('@userToken', user.uid);
+            // Redireciona para a Home ou outra tela
         } catch (error) {
-            console.error("Erro ao fazer login: ", error); 
+            console.error(error);
         }
     };
+
+    useEffect(() => {
+        const checkUser = async () => {
+            try {
+                const userToken = await AsyncStorage.getItem('@userToken');
+                if (userToken) {
+                    // O usuário está logado, redireciona para Home
+                    setUser(userToken);
+                } else {
+                    // O usuário não está logado, redireciona para Login
+                    setUser(null);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+            setLoading(false);
+        };
+    
+        checkUser();
+    }, []);
+
+
 
     return (
         <View style={styles.container}>
@@ -77,6 +105,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         width: '90%',
         backgroundColor: '#0071CF',
+        marginVertical:'5%',
     },
     buttonText: {
         color: '#fff',

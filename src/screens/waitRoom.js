@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, TouchableOpacity, Text, View, ActivityIndicator, StyleSheet, Alert } from 'react-native';
-import { collection, getDocs, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy,  } from '@firebase/firestore';
+import { collection, getDocs, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, getDoc  } from '@firebase/firestore';
 import { database } from "../../config/firebase";
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -8,18 +8,28 @@ const WaitRoom = ({ navigation, route }) => {
     const { userRole, userId } = route.params; // Adicione userId às props de navegação
     const [pacientes, setPacientes] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [numPacientesNaoRenderizados, setNumPacientesNaoRenderizados] = useState(0);
     
     const fetchPacientes = async () => {
-        // Coloca o estado o loading como True para os pacientes que forem buscados
         setLoading(true);
         try {
-            const q = query(collection(database, 'waitRoom'), orderBy('createdAt', 'asc')); // Ordenar por createdAt em ordem ascendente (mais antigo primeiro)
+            const q = query(collection(database, 'waitRoom'), orderBy('createdAt', 'asc'));
             const pacientesCollection = await getDocs(q);
             const pacientesList = pacientesCollection.docs.map(doc => ({
                 ...doc.data(),
                 id: doc.id
             }));
-            setPacientes(pacientesList);
+    
+            // Filtra os pacientes que estão aguardando (chatActive: false)
+            const pacientesAguardando = pacientesList.filter(paciente => !paciente.chatActive);
+    
+            // Define a lista de pacientes que serão renderizados
+            setPacientes(pacientesAguardando);
+    
+            // Calcula a quantidade de pacientes não renderizados
+            const pacientesNaoRenderizados = pacientesAguardando.length - pacientes.length;
+            setNumPacientesNaoRenderizados(pacientesNaoRenderizados > 0 ? pacientesNaoRenderizados : 0);
+    
             setLoading(false);
         } catch (error) {
             console.error('Erro ao buscar pacientes:', error);
@@ -50,31 +60,37 @@ const WaitRoom = ({ navigation, route }) => {
         const pacienteRef = doc(database, 'waitRoom', paciente.id);
 
         try {
-            // Busca o paciente no banco de dados
+            // Verifica se o paciente já está sendo atendido
             const pacienteDoc = await getDoc(pacienteRef);
 
             {/*Caso a propriedade chatActive seja true (significando que o paciente já está sendo atendido) emite um alerta informando ao usuário que o paciente
              em questão já foi atendido e em seguida atualiza a página*/}
 
-            if (pacienteDoc.exists() && pacienteDoc.data().chatActive) {
+             if (pacienteDoc.exists() && pacienteDoc.data().chatActive) {
                 Alert.alert("Erro", "Esse paciente já está sendo atendido");
                 // Atualiza a lista de pacientes
                 fetchPacientes();
             } else {
+                // Atualiza o estado para indicar que o paciente está sendo atendido
                 await updateDoc(pacienteRef, {
-                    chatActive: true, //Atualiza o estado do atendimento para True
-                    sessionId: paciente.id //Associa a sessão do chat ao ID do paciente
+                    chatActive: true,
+                    sessionId: paciente.id
                 });
-                navigation.navigate('Chat', { sessionId: paciente.id, name: paciente.name, userRole: 'medico', userId: 'medico' }); // Passa userId como 'medico'
-                // Remove paciente da lista após iniciar o atendimento
+    
+                // Remove o paciente da lista no Firestore antes de navegar para o chat
                 await deleteDoc(pacienteRef);
-                // Atualiza a lista de pacientes removendo o paciente que está sendo atendido.
+    
+                // Remove o paciente da lista local
                 setPacientes(prevPacientes => prevPacientes.filter(p => p.id !== paciente.id));
+    
+                // Navega para a tela de chat
+                navigation.navigate('Chat', { sessionId: paciente.id, name: paciente.name, userRole: 'medico', userId: 'medico' });
             }
         } catch (error) {
             console.error("Erro ao selecionar paciente:", error);
         }
     };
+    
 
     // Função para atualizar a lista de pacientes
     const refreshPacientes = () => {
@@ -102,17 +118,17 @@ const WaitRoom = ({ navigation, route }) => {
                     renderItem={({ item }) => (
                         <TouchableOpacity style={styles.pacienteContainer} onPress={() => handleSelectPaciente(item)}>
                             <Text style={styles.pacienteNome}>Nome: {item.name}</Text>
-                            <Text style={styles.pacienteSusCard}>SUS Card: {item.susCard}</Text>
+                            <Text style={styles.pacienteSusCard}>Carteirinha SUS: {item.susCard}</Text>
                         </TouchableOpacity>
                     )}
                 />
-                <View style={styles.refreshButtonContainer}>
+               <View style={styles.refreshButtonContainer}>
                     <TouchableOpacity style={styles.refreshButton} onPress={refreshPacientes}>
                         <Icon name="refresh" size={25} color='white' style={styles.refreshIcon} />
                     </TouchableOpacity>
-                    {pacientes.length > 0 && (
+                    {numPacientesNaoRenderizados > 0 && (
                         <View style={styles.notificationBadge}>
-                            <Text style={styles.notificationText}>{pacientes.length}</Text>
+                            <Text style={styles.notificationText}>{numPacientesNaoRenderizados}</Text>
                         </View>
                     )}
                 </View>
@@ -147,7 +163,7 @@ const styles = StyleSheet.create({
     refreshButtonContainer: {
         position: 'absolute',
         bottom: 20,
-        left: '95%',
+        left: '90%',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -176,8 +192,12 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     pacienteCount: {
-        fontSize: 18,
-        marginBottom: 10,
+        fontSize: 20,  
+        marginBottom: 20,
+        marginTop: 10,
+        color: '#53affa',
+        alignItems: 'center',
+        fontWeight: 'bold', 
         textAlign: 'center',
     }
 });

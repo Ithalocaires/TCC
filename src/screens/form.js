@@ -144,7 +144,7 @@ const Form = ({ navigation } , userRole) => { // userRole pode ser 'medico' ou '
             </TouchableOpacity>
 
             <TouchableOpacity style={Styles.confirmBtn} onPress={handleSubmitMedico}>
-                <Text style={Styles.confirmBtnText}>AcessarChatMédico</Text>
+                <Text style={Styles.confirmBtnText}>Acessar sala de espera</Text>
             </TouchableOpacity>
         </View>
     )

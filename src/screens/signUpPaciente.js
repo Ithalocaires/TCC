@@ -90,7 +90,7 @@ const SignUpPaciente = () => {
                 onChangeText={setCartaoSUS}
             />
             <View style={styles.row}>
-                <TouchableOpacity style={styles.datePickerButton} onPress={() => setShowDatePicker(true)}>
+                <TouchableOpacity style={styles.datePicker} onPress={() => setShowDatePicker(true)}>
                     <Text style={styles.datePickerText}>{formatDate(dataNascimento)}</Text>
                 </TouchableOpacity>
                 {showDatePicker && (
@@ -151,15 +151,16 @@ const styles = StyleSheet.create({
         borderColor: '#ccc',
     },
     datePicker:{
+        width: '27%',
         padding: 10,
         marginVertical: 10,
         borderWidth: 1,
         borderRadius: 15,
         borderColor: '#ccc',
-        
+        justifyContent:'center' 
     },
     rgInput: {
-        width: '50%',
+        width: '70%',
         padding: 10,
         marginVertical: 10,
         borderWidth: 1,
@@ -189,6 +190,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         width: '90%',
         backgroundColor: '#0071CF',
+        marginVertical:'5%',
     },
     textSubmit: {  
         color: 'white', 
@@ -202,6 +204,10 @@ const styles = StyleSheet.create({
     link: {
         color: '#007BFF',
         marginTop: 10,
+    },
+    datePickerText:{
+       color: '#616161',
+
     },
 });
 
