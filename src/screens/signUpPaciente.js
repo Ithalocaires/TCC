@@ -25,6 +25,15 @@ const SignUpPaciente = () => {
         setShowDatePicker(false); // Fecha o DateTimePicker após selecionar a data
     };
 
+    //Altera o formato da data para ficar no padrão Brasileiro
+    const formatDate = (date) => {
+        return new Intl.DateTimeFormat('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        }).format(date);
+    };
+
     //Função para registrar usuários (Pacientes)
     const handleRegister = () => {
         //Cria um usuário utilizando o email e a senha como autênticação
@@ -81,13 +90,8 @@ const SignUpPaciente = () => {
                 onChangeText={setCartaoSUS}
             />
             <View style={styles.row}>
-                <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-                    <TextInput
-                        style={styles.datePicker}
-                        placeholder="Data de Nascimento"
-                        value={dataNascimento.toLocaleDateString()}
-                        editable={false}
-                    />
+                <TouchableOpacity style={styles.datePickerButton} onPress={() => setShowDatePicker(true)}>
+                    <Text style={styles.datePickerText}>{formatDate(dataNascimento)}</Text>
                 </TouchableOpacity>
                 {showDatePicker && (
                     <DateTimePicker
