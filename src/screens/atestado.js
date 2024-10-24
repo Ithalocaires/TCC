@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView, Platform, PermissionsAndroid } from 'react-native';
-import DatePicker from 'react-native-date-picker';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView, Platform, PermissionsAndroid} from 'react-native';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
+import { TextInputMask } from 'react-native-masked-text'
+//Se continuar dando erro tirar o TextInputMask
 
 const AtestadoGenerator = ({ navigation }) => {
   const [nomePaciente, setNomePaciente] = useState('');
   const [periodoAfastado, setPeriodoAfastado] = useState('');
   const [nomeMedico, setNomeMedico] = useState('');
   const [crm, setCrm] = useState('');
-  const [startDate, setStartDate] = useState(new Date());
+  const [diaConsul, setDiaConsul] = useState('');
   const [reason, setReason] = useState('');
-
-  
+  const [nascipaciente, setNasciPaciente ] = useState('');
+  const [cpf, setCpf ] = useState('');
 
   const generateAtestado = async () => {
     if (!reason || !nomePaciente || !periodoAfastado) {
@@ -33,21 +34,25 @@ const AtestadoGenerator = ({ navigation }) => {
       <div style="padding: 20px;">
         <h3>Atestado Médico</h3>
 
-        <p>Eu, Dr. Fulano de Tal, CRM 123456, atesto que o(a) paciente:</p>
+        <p>Eu, Dr. ${nomeMedico}, CRM ${crm}, atesto que o(a) paciente:</p>
 
         <p><strong>Nome:</strong> ${nomePaciente}</p>
-        <p><strong>Data de Nascimento:</strong> [Data de Nascimento]</p>
-        <p><strong>CPF:</strong> [CPF do Paciente]</p>
+        <p><strong>Data de Nascimento:</strong> ${nascipaciente}</p>
+        <p><strong>CPF:</strong> ${cpf}</p>
 
         <p>Encontra-se sob meus cuidados médicos e deverá permanecer afastado de suas atividades laborais pelo período de:</p>
 
         <p><strong>${periodoAfastado} dias</strong>, a contar da presente data.</p>
 
-        <p>Data de emissão: <strong>${startDate}</strong></p>
+        <p>Data de emissão: <strong>${diaConsul}</strong></p>
 
         <br/>
         <p>______________________________</p>
-        <p>Assinatura do Médico</p>
+        <div>  
+          <p style=" margin: 0px;">Assinatura do Médico</p>
+          <p style=" margin: 0px;">Nome do medico:<strong>${nomeMedico}</strong></p>
+          <p style=" margin: 0px;">CRM:<strong>${crm}</strong></p>
+        </div>
 
         <br/>
         <!-- Botão estilizado com um link -->
@@ -98,21 +103,50 @@ const AtestadoGenerator = ({ navigation }) => {
         <TextInput
           style={styles.input}
           value={nomePaciente}
-          onChangeText={setNomePaciente}  
+          onChangeText={setNomePaciente}
+          placeholder="Insira o nome do paciente"  
+        />
+
+        <Text style={styles.label}>CPF:</Text>
+        <TextInputMask
+          type={'cpf'}
+          style={styles.input}
+          value={cpf}
+          onChangeText={setCpf}
+          placeholder="Insira o CPF do paciente"
+        />
+
+        <Text style={styles.label}>Data de nascimento:</Text>
+        <TextInputMask
+          type={'datetime'}
+          options={{
+            format: 'DD/MM/YYYY'
+          }}
+          style={styles.input}
+          value={nascipaciente}
+          onChangeText={setNasciPaciente}
+          placeholder="Insira a Data do nascimento do paciente"
         />
 
         <Text style={styles.label}>Nome do Medico:</Text>
         <TextInput
           style={styles.input}
           value={nomeMedico}
-          onChangeText={setNomeMedico}  
+          onChangeText={setNomeMedico}
+          placeholder="Insira o nome do medico" 
         />
 
         <Text style={styles.label}>CRM:</Text>
-        <TextInput
+        <TextInputMask
+          type={'custom'}
+          options={{
+            mask: '999999-9'
+          }}
           style={styles.input}
           value={crm}
-          onChangeText={setCrm}  
+          onChangeText={setCrm}
+          keyboardType="numeric"
+          placeholder="Insira o CRM do medico"   
         />
 
         <Text style={styles.label}>Período de afastamento:</Text>
@@ -120,6 +154,7 @@ const AtestadoGenerator = ({ navigation }) => {
           style={styles.input}
           value={periodoAfastado}
           onChangeText={setPeriodoAfastado}
+          keyboardType="numeric"
           placeholder="Insira o período"
         />
 
@@ -132,11 +167,15 @@ const AtestadoGenerator = ({ navigation }) => {
         />
 
         <Text style={styles.label}>Data da consulta:</Text>
-        <DatePicker
-          date={startDate}
-          onDateChange={setStartDate}
-          mode="date"
-          locale="pt"
+        <TextInputMask
+          type={'datetime'}
+          options={{
+            format: 'DD/MM/YYYY'
+          }}
+          style={styles.input}
+          value={diaConsul}
+          onChangeText={setDiaConsul}
+          placeholder="Insira a data da consulta"
         />
 
         <Button title="Gerar Atestado" onPress={generateAtestado} />
