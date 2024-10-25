@@ -10,7 +10,6 @@ const LoginScreen = () => {
     const [email, setEmail] = useState(''); 
     const [password, setPassword] = useState('');
     const navigation = useNavigation();
-    const [user, setUser] = useState<User | null>(null);
 
     const handleLogin = async () => {
         try {
@@ -24,28 +23,6 @@ const LoginScreen = () => {
             console.error(error);
         }
     };
-
-    useEffect(() => {
-        const checkUser = async () => {
-            try {
-                const userToken = await AsyncStorage.getItem('@userToken');
-                if (userToken) {
-                    // O usuário está logado, redireciona para Home
-                    setUser(userToken);
-                } else {
-                    // O usuário não está logado, redireciona para Login
-                    setUser(null);
-                }
-            } catch (error) {
-                console.error(error);
-            }
-            setLoading(false);
-        };
-    
-        checkUser();
-    }, []);
-
-
 
     return (
         <View style={styles.container}>
