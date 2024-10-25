@@ -4,7 +4,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';  //Busca a propr
 import { doc, setDoc } from 'firebase/firestore';  //Busca as propriedades necessárias para adicionar elementos no Firestore
 import { useNavigation } from '@react-navigation/native';  // Biblioteca que permite a navegação entre telas
 import DateTimePicker from '@react-native-community/datetimepicker';  //Componente para escolher uma data
-import { database, auth } from "../../config/firebase"
+import { database, auth } from "../../config/firebase"  //Importe o acesso ao authenticator e o database do firebase
 
 const SignUpPaciente = () => {
     const [nome, setNome] = useState('');
@@ -75,6 +75,7 @@ const SignUpPaciente = () => {
                 placeholder="Nome"
                 value={nome}
                 onChangeText={setNome}
+                placeholderTextColor="#000"
             />
             <TextInput
                 style={styles.input}
@@ -82,12 +83,14 @@ const SignUpPaciente = () => {
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
+                placeholderTextColor="#000"
             />
             <TextInput
                 style={styles.input}
                 placeholder="Carteirinha SUS"
                 value={cartaoSUS}
                 onChangeText={setCartaoSUS}
+                placeholderTextColor="#000"
             />
             <View style={styles.row}>
                 <TouchableOpacity style={styles.datePicker} onPress={() => setShowDatePicker(true)}>
@@ -106,6 +109,7 @@ const SignUpPaciente = () => {
                     placeholder="RG"
                     value={rg}
                     onChangeText={setRg}
+                    placeholderTextColor="#000"
                 />
             </View>
             <TextInput
@@ -114,6 +118,7 @@ const SignUpPaciente = () => {
                 value={senha}
                 onChangeText={setSenha}
                 secureTextEntry
+                placeholderTextColor="#000"
             />
              <TouchableOpacity style={styles.buttonSubmit} onPress={handleRegister}>           
                 <Text style={styles.textSubmit}> Cadastrar </Text>
@@ -149,9 +154,10 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 15,
         borderColor: '#ccc',
+        color:'#000',
     },
     datePicker:{
-        width: '27%',
+        width: '30%',
         padding: 10,
         marginVertical: 10,
         borderWidth: 1,
@@ -160,12 +166,13 @@ const styles = StyleSheet.create({
         justifyContent:'center' 
     },
     rgInput: {
-        width: '70%',
+        width: '68%',
         padding: 10,
         marginVertical: 10,
         borderWidth: 1,
         borderRadius: 15,
         borderColor: '#ccc',
+        color:'#000',
     },
     button: {
         backgroundColor: '#007BFF',

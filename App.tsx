@@ -40,7 +40,7 @@ const App = () => {
 
 if (loading) {
     return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor:'white' }}>
             <ActivityIndicator size="large" color="#0000ff" />
         </View>
     );
