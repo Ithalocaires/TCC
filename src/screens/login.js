@@ -2,15 +2,13 @@ import React, { useState, useEffect } from 'react'; // Componentes obrigatórios
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native'; // Componentes nativos do React para o Front
 import { useNavigation } from '@react-navigation/native'; // Navegação para outras telas
 import { signInWithEmailAndPassword } from "firebase/auth"; //Autenticação Firebase
-import { database, auth } from "../../config/firebase"
+import { auth } from "../../config/firebase"
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User } from 'firebase/auth';
 
 const LoginScreen = () => {
     const [email, setEmail] = useState(''); 
     const [password, setPassword] = useState('');
     const navigation = useNavigation();
-    const [user, setUser] = useState<User | null>(null);
 
     const handleLogin = async () => {
         try {
@@ -25,26 +23,6 @@ const LoginScreen = () => {
         }
     };
 
-    useEffect(() => {
-        const checkUser = async () => {
-            try {
-                const userToken = await AsyncStorage.getItem('@userToken');
-                if (userToken) {
-                    // O usuário está logado, redireciona para Home
-                    setUser(userToken);
-                } else {
-                    // O usuário não está logado, redireciona para Login
-                    setUser(null);
-                }
-            } catch (error) {
-                console.error(error);
-            }
-            setLoading(false);
-        };
-    
-        checkUser();
-    }, []);
-
 
 
     return (
@@ -56,6 +34,7 @@ const LoginScreen = () => {
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
+                placeholderTextColor="#000"
             />
             <TextInput
                 style={styles.input}
@@ -63,6 +42,7 @@ const LoginScreen = () => {
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
+                placeholderTextColor="#000"
             />
             <TouchableOpacity style={styles.button} onPress={handleLogin}>
                 <Text style={styles.buttonText}>Entrar</Text>
@@ -97,6 +77,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 15,
         borderColor: '#ccc',
+        color:'#000',
     },
     button: {
         padding: 12,

@@ -15,8 +15,6 @@ import { onAuthStateChanged } from 'firebase/auth';
 import 'react-native-gesture-handler';
 import { User } from 'firebase/auth';
 
-
-
 const Stack = createStackNavigator();
 
 const App = () => {
@@ -42,7 +40,7 @@ const App = () => {
 
 if (loading) {
     return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor:'white' }}>
             <ActivityIndicator size="large" color="#0000ff" />
         </View>
     );
@@ -67,6 +65,9 @@ if (loading) {
                     // Se o usuário não estiver logado, navega para a tela de Login
                     <Stack.Screen name="Login" component={LoginScreen} options={{title: ''}}/>
                 )}
+
+        {/*Tela Login*/}
+        <Stack.Screen name="Login" component={LoginScreen} options={{title: ''}}/>
 
         {/*Tela formulário*/}
         <Stack.Screen name="Consulta" component={Form} options={{title: 'Formulário'}}/>

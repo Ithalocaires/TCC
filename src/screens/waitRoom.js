@@ -150,11 +150,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#f9f9f9',
         borderRadius: 8,
         borderColor: '#ddd',
-        borderWidth: 1,
+        borderWidth: 1.5,
     },
     pacienteNome: {
         fontSize: 16,
         fontWeight: 'bold',
+        color:'#555'
     },
     pacienteSusCard: {
         fontSize: 14,

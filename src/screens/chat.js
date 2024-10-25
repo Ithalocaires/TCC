@@ -1,7 +1,7 @@
 import { useRoute } from "@react-navigation/native";
 import { GiftedChat, Bubble } from 'react-native-gifted-chat';
-import { useCallback, useEffect, useState, TouchableOpacity, Text, TextInput, Modal } from "react";
-import { KeyboardAvoidingView, Platform, StyleSheet, View, Alert } from 'react-native';
+import { useCallback, useEffect, useState} from "react";
+import { KeyboardAvoidingView, Platform, StyleSheet, View, Alert,  Modal, Text, TextInput, TouchableOpacity } from 'react-native';
 import { collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc } from "firebase/firestore";
 import { database } from "../../config/firebase";
 import Icon from 'react-native-vector-icons/FontAwesome'; // Ícones
@@ -10,7 +10,7 @@ const ChatScreen = () => {
     const [messages, setMessages] = useState([]);
     const route = useRoute();
     const { sessionId, name, userRole, userId } = route.params; // Certifique-se de que userId está sendo passado corretamente
-    const [modalVisible, setModalVisible] = useState();
+    const [modalVisible, setModalVisible] = useState(false);
     const [nome, setNome] = useState();
     
 
@@ -74,7 +74,7 @@ const ChatScreen = () => {
 
     const renderBubble = (props) => {
         const isCurrentUser = props.currentMessage.user._id === userId;
-        const backgroundColor = isCurrentUser ? '#D1E8FF' : '#FFEBE8';
+        const backgroundColor = isCurrentUser ? '#53affa' : '#003770';
         return (
             <Bubble
                 {...props}
@@ -90,10 +90,12 @@ const ChatScreen = () => {
                 }}
                 textStyle={{
                     right: {
-                        color: '#000'
+                        color: '#fff',
+
                     },
                     left: {
-                        color: '#000'
+                        color: '#fff',
+
                     }
                 }}
             />
@@ -127,12 +129,13 @@ const ChatScreen = () => {
 
     return (
         <View style={{ flex: 1 }}>
-            <KeyboardAvoidingView
+            <View
                 style={{ flex: 1 }}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
             >
                  <GiftedChat
+                    minComposerHeight={70}
                     messages={messages}
                     onSend={msg => mensagemEnviada(msg)}
                     user={{
@@ -185,12 +188,24 @@ const ChatScreen = () => {
                         </View>
                     </View>
                 </Modal>
-            </KeyboardAvoidingView>
+            </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
+    receitaButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        marginLeft: '10%',  
+        fontWeight:'bold',
+    },
+    logoutButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        marginLeft: '10%',
+        fontWeight:'bold',
+    },
     footer: {
         padding: 10,
         backgroundColor: '#f0f0f0',
@@ -199,16 +214,22 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     receitaButton: {
-        backgroundColor: '#0071CF',
+        backgroundColor: '#007BFF',
+        borderRadius: 8,
+        width: '25%',
+        marginVertical: 10,
         padding: 10,
-        borderRadius: 5,
         flexDirection: 'row',
         alignItems: 'center',
     },
     logoutButton: {
         backgroundColor: 'red',
+        borderRadius: 8,
+        width: '25%',
+        marginVertical: 10,
         padding: 10,
-        borderRadius: 5,
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     modalContainer: {
         flex: 1,
