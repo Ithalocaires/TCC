@@ -1,135 +1,220 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native'
+import React, { useEffect, useState } from 'react';
+import { View, Text, Button, ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
+import { auth, database } from '../../config/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Icon2 from 'react-native-vector-icons/FontAwesome';
+import { useNavigation } from '@react-navigation/native';
 
+const ProfileScreen = ({ user }) => {
 
-const HomeScreen = ({navigation}) => {
-    return(
-        
-        <View style= {Styles.header}>
+    const navigation = useNavigation();
 
-                {/*Header*/}
-                <Text style={Styles.headerTextBlue}>
-                    Você não está logado.
-                </Text>
-                <Text style={Styles.headerText}>
-                    Faça login para prosseguir.
-                </Text>
+    if (!user) {
+        return (
+            <View style={styles.loadingContainer}>
+                <Text style={styles.loadingText}>Carregando informações do perfil...</Text>
+            </View>
+        );
+    }
 
-                {/*Botão Login */}
-                <TouchableOpacity style={Styles.loginBtn} onPress={() => navigation.navigate('Login')}>
-                    <Text style={Styles.loginBtnText}>Login</Text>
-                </TouchableOpacity>
-
-                {/*Container azul na parte inferior */}
-                <View style={Styles.body}>
-                    <Text style={Styles.bodyText}> Ações </Text>
+    return (
+        <View style={styles.container}>
+            <Text style={styles.title}>Perfil do Usuário</Text>
+            <View style={styles.profileInfo}>
+                <Text style={styles.text}>Nome: {user.nome || "Nome não disponível"}</Text>
+                <Text style={styles.text}>Email: {user.email}</Text>
+                <Text style={styles.text}>RG: {user.rg}</Text>
+                {user.CRM && <Text style={styles.text}>CRM: {user.CRM}</Text>}
+                {user.cartaoSUS && <Text style={styles.text}>Cartão SUS: {user.cartaoSUS}</Text>}
+                <Text style={styles.text}>Tipo de Usuário: {user.CRM ? "Médico" : "Paciente"}</Text>
+            </View>
+            <View style={styles.body}>
+                    <Text style={styles.bodyText}> Ações </Text>
 
                     {/*Primeira Linha de botões */}
-                    <View style={Styles.btnContainer}>
+                    <View style={styles.btnContainer}>
 
                         {/*Botão 1 */}
-                        <TouchableOpacity style={Styles.bodyBtn}>
+                        <TouchableOpacity style={styles.bodyBtn}>
                             <Icon name="newspaper-outline" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
                                 style={{borderRadius:8, padding:12, paddingHorizontal: 10}}/>
-                            <Text style={Styles.bodyBtnText}> Conteúdos </Text>
+                            <Text style={styles.bodyBtnText}> Conteúdos </Text>
                         </TouchableOpacity>
 
                         {/*Botão 2 */}
-                        <TouchableOpacity style={Styles.bodyBtn}>
+                        <TouchableOpacity style={styles.bodyBtn}>
                             <Icon2 name="hospital-o" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
                                 style={{borderRadius:8, padding:11, width:45, paddingHorizontal: 13 }}/>
-                            <Text style={Styles.bodyBtnText2}> Rede de Saúde </Text>
+                            <Text style={styles.bodyBtnText2}> Rede de Saúde </Text>
                         </TouchableOpacity>
 
                         {/*Botão 3 */}
-                        <TouchableOpacity style={Styles.bodyBtn}>
+                        <TouchableOpacity style={styles.bodyBtn}>
                             <Icon2 name="qrcode" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
                                 style={{borderRadius:8, padding:11, width:45, paddingHorizontal: 12 }}/>
-                            <Text style={Styles.bodyBtnText2}> Valida Cartão </Text>
+                            <Text style={styles.bodyBtnText2}> Valida Cartão </Text>
                         </TouchableOpacity>
 
                         {/*Botão 4 */}
-                        <TouchableOpacity style={Styles.bodyBtn}>
+                        <TouchableOpacity style={styles.bodyBtn} onPress={() => navigation.navigate('Atestado')}>
                             <Icon2 name="calendar" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
                                 style={{borderRadius:8, padding:11, width:45, paddingHorizontal: 11 }}/>
-                            <Text style={Styles.bodyBtnText2}> Cartilha de Vacinas </Text>
+                            <Text style={styles.bodyBtnText2}> Atestados </Text>
                         </TouchableOpacity>
                     </View>
 
                     {/*Segunda Linha de botões */}
-                    <View style={Styles.btnContainer}>
+                    <View style={styles.btnContainer}>
 
                         {/*Botão 5 */}
-                        <TouchableOpacity style={Styles.bodyBtn}>
+                        <TouchableOpacity style={styles.bodyBtn}>
                             <Icon name="chatbubble-ellipses-outline" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
                                 style={{borderRadius:8, padding:10,}}/>
-                            <Text style={Styles.bodyBtnText2}> Fale com meu SUS digital </Text>
+                            <Text style={styles.bodyBtnText2}> Fale com meu SUS digital </Text>
                         </TouchableOpacity>
 
                         {/*Botão 6 */}
-                        <TouchableOpacity style={Styles.bodyBtn}>
+                        <TouchableOpacity style={styles.bodyBtn}>
                             <Icon2 name="hospital-o" size={25}  color= '#003770' backgroundColor='white' borderRadius={20}
                                style={{borderRadius:8, padding:11, width:45, paddingHorizontal: 12 }}/>
-                            <Text style={Styles.bodyBtnText2}> Sobre o SUS </Text>
+                            <Text style={styles.bodyBtnText2}> Sobre o SUS </Text>
                         </TouchableOpacity>
 
                         {/*Botão 7 */}
-                        <TouchableOpacity style={Styles.bodyBtn}>
+                        <TouchableOpacity style={styles.bodyBtn}>
                             <Icon name="information-circle-outline" size={35}  color= '#003770' backgroundColor='white' borderRadius={20}
                                 style={{borderRadius:8, paddingVertical:6, width:46, paddingHorizontal: 6 }}/>
-                            <Text style={Styles.bodyBtnText2}> Termos de utilização </Text>
+                            <Text style={styles.bodyBtnText2}> Termos de utilização </Text>
                         </TouchableOpacity>
                         
                         {/*Botão 8 */}
-                        <TouchableOpacity style={Styles.bodyBtn} onPress={() => navigation.navigate('Consulta')}>
+                        <TouchableOpacity style={styles.bodyBtn} onPress={() => navigation.navigate('Consulta')}>
                             <Icon2 name="mobile-phone" size={35}  color= '#003770' backgroundColor='white' borderRadius={20}
                                 style={{borderRadius:8, padding:5, width:45, paddingHorizontal: 15 }}/>
-                            <Text style={Styles.bodyBtnText2}> Consulta pelo Celular </Text>
+                            <Text style={styles.bodyBtnText2}> Consulta pelo Celular </Text>
                         </TouchableOpacity>
                     </View>
             </View>
         </View>
+        
     );
-}
+};
 
-const Styles = StyleSheet.create({
-    header:{
-        flex: 1, 
-        backgroundColor: 'white', 
-        padding: 15,
+const HomeScreen = ({ navigation }) => {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            if (currentUser) {
+                await fetchUserData(currentUser.uid);
+            } else {
+                console.log("Nenhum usuário autenticado");
+                setLoading(false);
+            }
+        });
+
+        return unsubscribe;
+    }, []);
+
+    const fetchUserData = async (userId) => {
+        try {
+            let userDoc = await getDoc(doc(database, 'medicos', userId));
+            
+            if (userDoc.exists()) {
+                setUser({
+                    nome: userDoc.data().nome,
+                    email: userDoc.data().email,
+                    rg: userDoc.data().rg,
+                    CRM: userDoc.data().CRM,
+                });
+            } else {
+                userDoc = await getDoc(doc(database, 'pacientes', userId));
+                
+                if (userDoc.exists()) {
+                    setUser({
+                        nome: userDoc.data().nome,
+                        email: userDoc.data().email,
+                        rg: userDoc.data().rg,
+                        cartaoSUS: userDoc.data().cartaoSUS,
+                    });
+                } else {
+                    console.log("Usuário não encontrado em nenhuma coleção");
+                }
+            }
+        } catch (error) {
+            console.error("Erro ao buscar dados do usuário:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+            
+        );
+    }
+
+    return (
+        <View style={styles.container}>
+            <ProfileScreen user={user}/>
+        </View>
+    );
+};
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+        width:'100%'
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
         alignItems: 'center',
     },
-    headerTextBlue:{
-        fontSize: 22,  
-        marginBottom: 20,
-        color: '#53affa',
-        alignItems: 'center',
-        marginTop: 150,
-        fontWeight: 'bold', 
-        textAlign: 'center',
+    loadingText: {
+        fontSize: 18,
+        marginVertical: 5,
     },
-    headerText:{
-        fontSize: 16, 
-        fontWeight: 'bold', 
-        marginBottom: 50,
-        alignItems: 'center',
-        width: 260,
-        color: 'black',
-        textAlign:'center',
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 10,
     },
-    loginBtn:{
-        padding: 12,
-        borderRadius: 8,
-        alignItems: 'center',
-        borderRadius: 20,
-        width: '80%',
-        backgroundColor: '#0071CF',
+    profileInfo: {
+        marginVertical: 20,
     },
-    loginBtnText:{
-        color: 'white', 
-        fontWeight: 'bold'
+    text: {
+        fontSize: 18,
+        marginVertical: 5,
+    },
+    logoutButton: {
+        backgroundColor: '#ff4d4d',
+        padding: 10,
+        borderRadius: 5,
+        marginTop: 10,
+    },
+    logoutButtonText: {
+        color: 'white',
+        fontSize: 18,
+    },
+    navigationButton: {
+        backgroundColor: '#007BFF',
+        padding: 10,
+        borderRadius: 5,
+        marginTop: 10,
+    },
+    navigationButtonText: {
+        color: 'white',
+        fontSize: 18,
     },
     body:{
         backgroundColor: '#003770',
@@ -137,10 +222,10 @@ const Styles = StyleSheet.create({
         borderTopRightRadius: 20,
         paddingVertical: 10,
         paddingHorizontal: '0%',
-        marginTop: 70,
-        width: '110%',
+        marginTop: "30%",
+        width: '130%',
         flex: 1,    
-        marginBottom: -20,
+        marginBottom: -40,
     },
     bodyText:{
         fontSize:16,
@@ -171,6 +256,6 @@ const Styles = StyleSheet.create({
         height:'40%',
         flexDirection: 'row',
     },
-})
+});
 
 export default HomeScreen;
