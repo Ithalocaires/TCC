@@ -3,6 +3,11 @@ import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView, Platform,
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
 import { TextInputMask } from 'react-native-masked-text'
+<<<<<<< HEAD
+=======
+import { TouchableOpacity } from 'react-native-gesture-handler';
+//Se continuar dando erro tirar o TextInputMask
+>>>>>>> d8948da776fe7af1ab408be228e9d4ccc15fd25c
 
 const AtestadoGenerator = ({ navigation }) => {
   const [nomePaciente, setNomePaciente] = useState('');
@@ -177,7 +182,9 @@ const AtestadoGenerator = ({ navigation }) => {
           placeholder="Insira a data da consulta"
         />
 
-        <Button title="Gerar Atestado" onPress={generateAtestado} />
+        <TouchableOpacity style={styles.buttonSubmit} onPress={generateAtestado}>
+          <Text style={styles.textSubmit}> Gerar Atestado </Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -197,15 +204,30 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 18,
-    marginBottom: 10,
+    marginVertical: 5,
   },
   input: {
-    height: 40,
-    borderColor: '#ccc',
+    width: '90%',
+    padding: 10,
+    marginVertical: 10,
     borderWidth: 1,
-    marginBottom: 20,
-    paddingHorizontal: 10,
+    borderRadius: 15,
+    borderColor: '#ccc',
+    color:'#000',
   },
+  buttonSubmit: {
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    borderRadius: 20,
+    width: '90%',
+    backgroundColor: '#0071CF',
+    marginVertical:'5%',
+  },
+  textSubmit: {  
+    color: 'white', 
+    fontWeight: 'bold'
+},
 });
 
 export default AtestadoGenerator;

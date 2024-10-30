@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import HomeScreen from './src/screens/home';
 import Form from './src/screens/form'; 
 import ChatScreen from './src/screens/chat';
-import SplashScreen from './src/screens/loading';
 import WaitRoom from './src/screens/waitRoom';
 import LoginScreen from './src/screens/login';
 import SignUpPaciente from './src/screens/signUpPaciente';
@@ -14,6 +13,7 @@ import { auth } from './config/firebase'; // Firebase Authentication import
 import { onAuthStateChanged } from 'firebase/auth';
 import 'react-native-gesture-handler';
 import { User } from 'firebase/auth';
+import AtestadoGenerator from './src/screens/atestado';
 
 const Stack = createStackNavigator();
 
@@ -60,7 +60,7 @@ if (loading) {
       }}>
          {user ? (
                     // Se o usuário estiver logado, navega para a Home
-                    <Stack.Screen name="Home" component={HomeScreen} options={{title: ''}} />
+                    <Stack.Screen name="Home" component={HomeScreen} options={{title: 'Perfil'}} />
                 ) : (
                     // Se o usuário não estiver logado, navega para a tela de Login
                     <Stack.Screen name="Login" component={LoginScreen} options={{title: ''}}/>
@@ -71,9 +71,6 @@ if (loading) {
 
         {/*Tela formulário*/}
         <Stack.Screen name="Consulta" component={Form} options={{title: 'Formulário'}}/>
-
-        {/*Tela loading*/}
-        <Stack.Screen name="Loading" component={SplashScreen} options={{title: ''}} />
 
         {/*Tela Consulta*/}
         <Stack.Screen name="Chat" component={ChatScreen} options={{title: ''}} />
@@ -86,6 +83,9 @@ if (loading) {
 
         {/*Tela de Cadastro Médico*/}
         <Stack.Screen name="Cadastro Médico" component={SignUpMedico} options={{title: ''}} />
+
+        {/*Tela de Atestados*/}
+        <Stack.Screen name='Atestado' component={AtestadoGenerator} options={{title: ''}}/>
       </Stack.Navigator>
     </NavigationContainer>
   )
