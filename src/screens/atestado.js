@@ -3,7 +3,6 @@ import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView, Platform,
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
 import { TextInputMask } from 'react-native-masked-text'
-//Se continuar dando erro tirar o TextInputMask
 
 const AtestadoGenerator = ({ navigation }) => {
   const [nomePaciente, setNomePaciente] = useState('');
