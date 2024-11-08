@@ -3,11 +3,7 @@ import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView, Platform,
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
 import { TextInputMask } from 'react-native-masked-text'
-<<<<<<< HEAD
-=======
 import { TouchableOpacity } from 'react-native-gesture-handler';
-//Se continuar dando erro tirar o TextInputMask
->>>>>>> d8948da776fe7af1ab408be228e9d4ccc15fd25c
 
 const AtestadoGenerator = ({ navigation }) => {
   const [nomePaciente, setNomePaciente] = useState('');
