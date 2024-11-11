@@ -43,15 +43,15 @@ const SignUpPaciente = () => {
                 const userId = userCredential.user.uid;
                 //Armazena as informações de cada campo no banco "pacientes"
                 setDoc(doc(database, 'pacientes', userId), {
-                    nome,
-                    email,
-                    cartaoSUS,
-                    dataNascimento,
-                    rg,
+                    nome,                                       // Nome
+                    email,                                      // E-mail
+                    cartaoSUS,                                  // Carteirinha SUS
+                    dataNascimento,                             // Data de Nascimento
+                    rg,                                         // RG
                 }).then(() => {
                     //Caso o cadastro seja feito com sucesso ele irá informar o usuário que foi cadastrado e navegará para a tela de login novamente
                     console.log('Paciente cadastrado com sucesso!');
-                    navigation.navigate('Login');
+                    navigation.navigate('Login'); 
                 }).catch(error => {
                     // Caso aconteça algum erro irá informar ao usuário
                     console.error('Erro ao cadastrar paciente:', error);

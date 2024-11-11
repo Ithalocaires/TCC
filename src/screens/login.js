@@ -14,10 +14,14 @@ const LoginScreen = () => {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
-            
+            const userId = user.uid; // Obtenha o userId
+    
             // Salva o token do usuário no AsyncStorage
-            await AsyncStorage.setItem('@userToken', user.uid);
-            // Redireciona para a Home ou outra tela
+            await AsyncStorage.setItem('@userToken', userId);
+            
+            // Redireciona para a Home ou tela de cadastro com o userId como parâmetro
+            navigation.navigate('Home', { userId });
+    
         } catch (error) {
             console.error(error);
         }

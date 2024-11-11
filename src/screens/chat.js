@@ -2,30 +2,56 @@ import { useRoute } from "@react-navigation/native";
 import { GiftedChat, Bubble } from 'react-native-gifted-chat';
 import { useCallback, useEffect, useState} from "react";
 import { KeyboardAvoidingView, Platform, StyleSheet, View, Alert,  Modal, Text, TextInput, TouchableOpacity } from 'react-native';
-import { collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc } from "firebase/firestore";
+import { collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc, getDoc } from "firebase/firestore";
 import { database } from "../../config/firebase";
 import Icon from 'react-native-vector-icons/FontAwesome'; // Ícones
+import { useNavigation } from '@react-navigation/native';
 
 const ChatScreen = () => {
     const [messages, setMessages] = useState([]);
     const route = useRoute();
-    const { sessionId, name, userRole, userId } = route.params; // Certifique-se de que userId está sendo passado corretamente
+    const navigation = useNavigation();
+    const { sessionId, name, userId } = route.params; 
+    const [userRole, setUserRole] = useState('desconhecido'); // Definimos um valor padrão
     const [modalVisible, setModalVisible] = useState(false);
     const [nome, setNome] = useState();
-    
+
+    useEffect(() => {
+        // Busca o papel do usuário com base no CRM ou cartaoSUS
+        const fetchUserRole = async () => {
+            try {
+                // O usuário terá a userRole no chat setado a partir do cadastro, sendo paciente e médico
+                const userDoc = await getDoc(doc(database, 'medicos', userId));
+                if (userDoc.exists()) {
+                    setUserRole(userDoc.data().CRM ? 'medico' : 'paciente');
+                } else {
+                    const patientDoc = await getDoc(doc(database, 'pacientes', userId));
+                    if (patientDoc.exists()) {
+                        setUserRole(patientDoc.data().cartaoSUS ? 'paciente' : 'desconhecido');
+                    }
+                }
+            } catch (error) {
+                console.error("Erro ao buscar o papel do usuário:", error);
+            }
+        };
+
+        fetchUserRole();
+    }, [userId]);
 
     useEffect(() => {
         const getMessages = async () => {
+            // Busca as mensagens no banco para renderizar na tela
             try {
                 const values = query(collection(database, `chatSessions/${sessionId}/messages`), orderBy('createdAt', 'desc'));
                 onSnapshot(values, (snapshot) => {
                     setMessages(
+                        // Informações armazenadas dentro da mensagem
                         snapshot.docs.map(doc => ({
-                            _id: doc.id,
-                            createdAt: doc.data().createdAt.toDate(),
-                            text: doc.data().text,
-                            user: doc.data().user,
-                            userRole: doc.data().userRole || 'desconhecido'
+                            _id: doc.id,                                    //ID da mensagem
+                            createdAt: doc.data().createdAt.toDate(),       //Data de criação de mensagem
+                            text: doc.data().text,                          //Texto da mensagem
+                            user: doc.data().user,                          //Usuário que enviou a mensagem
+                            userRole: doc.data().userRole || 'desconhecido' //Role do usuário que enviou a mensagem
                         }))
                     );
                 });
@@ -36,26 +62,18 @@ const ChatScreen = () => {
         getMessages();
     }, [sessionId]);
 
+    
     const mensagemEnviada = useCallback((messages = []) => {
         setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
         const { _id, createdAt, text, user } = messages[0];
 
-        // Verificar se todos os campos necessários estão definidos
-        if (!createdAt) console.error("Campo 'createdAt' indefinido");
-        if (!text) console.error("Campo 'text' indefinido");
-        if (!user) console.error("Campo 'user' indefinido");
-        if (!_id) console.error("Campo '_id' indefinido");
-        if (!user?._id) console.error("Campo 'user._id' indefinido");
-        if (!user?.name) console.error("Campo 'user.name' indefinido");
-        if (!user?.userRole) console.error("Campo 'user.userRole' indefinido");
-
+        // Caso encontre alguma informação errada irá reportar este erro
         if (!createdAt || !text || !user || !_id || !user._id || !user.name || !user.userRole) {
             console.error("Dados inválidos ao enviar mensagem:", { _id, createdAt, text, user });
             return;
         }
 
-        console.log("Enviando mensagem com dados:", { _id, createdAt, text, user, userRole: user.userRole });
-
+        //Adiciona e mensagem no Banco de dados
         addDoc(collection(database, `chatSessions/${sessionId}/messages`), {
             _id,
             createdAt,
@@ -65,16 +83,15 @@ const ChatScreen = () => {
                 name: user.name,
                 userRole: user.userRole
             }
-        }).then(() => {
-            console.log("Mensagem enviada com sucesso!");
         }).catch((error) => {
             console.error("Erro ao enviar mensagem: ", error);
         });
-    }, [sessionId, userRole]);
+    }, [sessionId]);
 
+    // Renderização da bolha do chat
     const renderBubble = (props) => {
         const isCurrentUser = props.currentMessage.user._id === userId;
-        const backgroundColor = isCurrentUser ? '#53affa' : '#003770';
+        const backgroundColor = isCurrentUser ? '#53affa' : '#003770';  // Diferenciar as cores das mensagens do médico e do usuário
         return (
             <Bubble
                 {...props}
@@ -102,6 +119,7 @@ const ChatScreen = () => {
         );
     };
 
+    //Função para quando o médico terminar o atendimento
     const handleFinish = () => {
         Alert.alert(
             "Sair",
@@ -110,12 +128,15 @@ const ChatScreen = () => {
                 { text: "Cancelar", style: "cancel" },
                 {
                     text: "Sim",
+                    // Ao terminar o atendimento o estado do chatActive de ambos usuários é passado para o false
+                    // tirando o acesso que eles tem a esse chat em questão
                     onPress: async () => {
                         try {
                             const patientDoc = doc(database, 'waitRoom', userId);
                             await updateDoc(patientDoc, {
                                 chatActive: false
                             });
+                            // Quando o chatActive é passado para o false o paciente será enviado para a Home
                             navigation.navigate("Home"); 
                         } catch (error) {
                             console.error("Erro ao finalizar o atendimento:", error);

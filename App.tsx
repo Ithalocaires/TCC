@@ -66,8 +66,6 @@ if (loading) {
                     <Stack.Screen name="Login" component={LoginScreen} options={{title: ''}}/>
                 )}
 
-        {/*Tela Login*/}
-        <Stack.Screen name="Login" component={LoginScreen} options={{title: ''}}/>
 
         {/*Tela formulário*/}
         <Stack.Screen name="Consulta" component={Form} options={{title: 'Formulário'}}/>

@@ -7,9 +7,27 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Icon2 from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 
-const ProfileScreen = ({ user }) => {
-
+const ProfileScreen = ({ user, route }) => {
+    const userId = route?.params?.userId;
     const navigation = useNavigation();
+
+    if (!user) {
+        return (
+            <View style={styles.loadingContainer}>
+                <Text style={styles.loadingText}>Carregando informações do perfil...</Text>
+            </View>
+        );
+    }
+
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            navigation.navigate('Consulta', { userId }); 
+        } catch (error) {
+            Alert.alert('Erro', 'Não foi possível sair. Tente novamente.');
+            console.error('Erro ao fazer logout:', error);
+        }
+    };
 
     if (!user) {
         return (
@@ -30,6 +48,9 @@ const ProfileScreen = ({ user }) => {
                 {user.cartaoSUS && <Text style={styles.text}>Cartão SUS: {user.cartaoSUS}</Text>}
                 <Text style={styles.text}>Tipo de Usuário: {user.CRM ? "Médico" : "Paciente"}</Text>
             </View>
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                <Text style={styles.logoutButtonText}>Logout</Text>
+            </TouchableOpacity>
             <View style={styles.body}>
                     <Text style={styles.bodyText}> Ações </Text>
 
@@ -90,7 +111,7 @@ const ProfileScreen = ({ user }) => {
                         </TouchableOpacity>
                         
                         {/*Botão 8 */}
-                        <TouchableOpacity style={styles.bodyBtn} onPress={() => navigation.navigate('Consulta')}>
+                        <TouchableOpacity style={styles.bodyBtn} onPress={() => navigation.navigate('Consulta',{ userId })}>
                             <Icon2 name="mobile-phone" size={35}  color= '#003770' backgroundColor='white' borderRadius={20}
                                 style={{borderRadius:8, padding:5, width:45, paddingHorizontal: 15 }}/>
                             <Text style={styles.bodyBtnText2}> Consulta pelo Celular </Text>
