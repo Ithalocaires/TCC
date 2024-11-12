@@ -6,6 +6,7 @@ import { collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc, getDoc 
 import { database } from "../../config/firebase";
 import Icon from 'react-native-vector-icons/FontAwesome'; // Ícones
 import { useNavigation } from '@react-navigation/native';
+import { customStyles } from "../source/styles";
 
 const ChatScreen = () => {
     const [messages, setMessages] = useState([]);
@@ -176,14 +177,14 @@ const ChatScreen = () => {
                 />
 
                 {userRole === 'medico' && (
-                    <View style={styles.footer}>
+                    <View style={customStyles.footer}>
                         <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.receitaButton}>
                             <Icon name="file-text-o" size={20} color="white" />
-                            <Text style={styles.receitaButtonText}>Receita</Text>
+                            <Text style={customStyles.receitaButtonText}>Receita</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity onPress={handleFinish} style={styles.logoutButton}>
-                            <Text style={styles.logoutButtonText}>Finalizar</Text>
+                            <Text style={customStyles.logoutButtonText}>Finalizar</Text>
                         </TouchableOpacity>
                     </View>
                 )}
@@ -194,17 +195,17 @@ const ChatScreen = () => {
                     visible={modalVisible}
                     onRequestClose={() => setModalVisible(false)}
                 >
-                    <View style={styles.modalContainer}>
-                        <View style={styles.modalContent}>
-                            <Text style={styles.modalTitle}>Preencha o Formulário</Text>
+                    <View style={customStyles.modalContainer}>
+                        <View style={customStyles.modalContent}>
+                            <Text style={customStyles.modalTitle}>Preencha o Formulário</Text>
                             <TextInput
-                                style={styles.input}
+                                style={customStyles.inputChat}
                                 placeholder="Digite seu nome"
                                 value={nome}
                                 onChangeText={setNome}
                             />
                             <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.button}>
-                                <Text style={styles.buttonText}>Enviar</Text>
+                                <Text style={customStyles.buttonText}>Enviar</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -213,82 +214,4 @@ const ChatScreen = () => {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    receitaButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        marginLeft: '10%',  
-        fontWeight:'bold',
-    },
-    logoutButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        marginLeft: '10%',
-        fontWeight:'bold',
-    },
-    footer: {
-        padding: 10,
-        backgroundColor: '#f0f0f0',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    receitaButton: {
-        backgroundColor: '#007BFF',
-        borderRadius: 8,
-        width: '25%',
-        marginVertical: 10,
-        padding: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    logoutButton: {
-        backgroundColor: 'red',
-        borderRadius: 8,
-        width: '25%',
-        marginVertical: 10,
-        padding: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0,0,0,0.5)',
-    },
-    modalContent: {
-        width: 300,
-        padding: 20,
-        backgroundColor: 'white',
-        borderRadius: 10,
-        alignItems: 'center',
-    },
-    modalTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    input: {
-        width: '100%',
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 5,
-        padding: 10,
-        marginBottom: 20,
-    },
-    button: {
-        backgroundColor: '#0071CF',
-        padding: 10,
-        borderRadius: 5,
-        width: '100%',
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: 'white',
-        fontSize: 16,
-    },
-});
-
 export default ChatScreen;

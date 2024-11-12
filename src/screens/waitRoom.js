@@ -3,6 +3,7 @@ import { FlatList, TouchableOpacity, Text, View, ActivityIndicator, StyleSheet, 
 import { collection, getDocs, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, getDoc  } from '@firebase/firestore';
 import { database } from "../../config/firebase";
 import Icon from 'react-native-vector-icons/Ionicons';
+import { customStyles } from '../source/styles';
 
 const WaitRoom = ({ navigation, route }) => {
     const { userRole, userId } = route.params; // Adicione userId às props de navegação
@@ -110,25 +111,25 @@ const WaitRoom = ({ navigation, route }) => {
     //Caso o usuário seja um médico o App irá renderizar a Lista de espera normalmente
     if (userRole === 'medico') {
         return (
-            <View style={styles.container}>
-                <Text style={styles.pacienteCount}>Pacientes na espera: {pacientes.length}</Text>
+            <View style={customStyles.waitRoomContainer}>
+                <Text style={customStyles.pacienteCount}>Pacientes na espera: {pacientes.length}</Text>
                 <FlatList
                     data={pacientes}
                     keyExtractor={item => item.id}
                     renderItem={({ item }) => (
-                        <TouchableOpacity style={styles.pacienteContainer} onPress={() => handleSelectPaciente(item)}>
-                            <Text style={styles.pacienteNome}>Nome: {item.name}</Text>
-                            <Text style={styles.pacienteSusCard}>Carteirinha SUS: {item.susCard}</Text>
+                        <TouchableOpacity style={customStyles.pacienteContainer} onPress={() => handleSelectPaciente(item)}>
+                            <Text style={customStyles.pacienteNome}>Nome: {item.name}</Text>
+                            <Text style={customStyles.pacienteSusCard}>Carteirinha SUS: {item.susCard}</Text>
                         </TouchableOpacity>
                     )}
                 />
-               <View style={styles.refreshButtonContainer}>
-                    <TouchableOpacity style={styles.refreshButton} onPress={refreshPacientes}>
-                        <Icon name="refresh" size={25} color='white' style={styles.refreshIcon} />
+               <View style={customStyles.refreshButtonContainer}>
+                    <TouchableOpacity style={customStyles.refreshButton} onPress={refreshPacientes}>
+                        <Icon name="refresh" size={25} color='white' style={customStyles.refreshIcon} />
                     </TouchableOpacity>
                     {numPacientesNaoRenderizados > 0 && (
-                        <View style={styles.notificationBadge}>
-                            <Text style={styles.notificationText}>{numPacientesNaoRenderizados}</Text>
+                        <View style={customStyles.notificationBadge}>
+                            <Text style={customStyles.notificationText}>{numPacientesNaoRenderizados}</Text>
                         </View>
                     )}
                 </View>
@@ -138,69 +139,5 @@ const WaitRoom = ({ navigation, route }) => {
 
     return null;
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 10,
-    },
-    pacienteContainer: {
-        padding: 15,
-        marginVertical: 10,
-        backgroundColor: '#f9f9f9',
-        borderRadius: 8,
-        borderColor: '#ddd',
-        borderWidth: 1.5,
-    },
-    pacienteNome: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color:'#555'
-    },
-    pacienteSusCard: {
-        fontSize: 14,
-        color: '#555',
-    },
-    refreshButtonContainer: {
-        position: 'absolute',
-        bottom: 20,
-        left: '90%',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    refreshButton: {
-        backgroundColor: '#007BFF',
-        padding: 10,
-        borderRadius: 25,
-    },
-    refreshIcon: {
-        borderRadius: 8,
-    },
-    notificationBadge: {
-        position: 'absolute',
-        top: -5,
-        right: -5,
-        backgroundColor: 'red',
-        borderRadius: 10,
-        width: 20,
-        height: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    notificationText: {
-        color: 'white',
-        fontSize: 12,
-        fontWeight: 'bold',
-    },
-    pacienteCount: {
-        fontSize: 20,  
-        marginBottom: 20,
-        marginTop: 10,
-        color: '#53affa',
-        alignItems: 'center',
-        fontWeight: 'bold', 
-        textAlign: 'center',
-    }
-});
 
 export default WaitRoom;

@@ -4,6 +4,8 @@ import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
 import { TextInputMask } from 'react-native-masked-text'
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { customStyles } from '../source/styles';
+
 
 const AtestadoGenerator = ({ navigation }) => {
   const [nomePaciente, setNomePaciente] = useState('');
@@ -96,135 +98,95 @@ const AtestadoGenerator = ({ navigation }) => {
 
   return (
     <ScrollView>
-      <View style={styles.container}>
-        <Text style={styles.title}>Gerador de Atestado Médico</Text>
+      <View style={customStyles.container}>
+        <Text style={customStyles.title}>Gerador de Atestado Médico</Text>
 
-        <Text style={styles.label}>Nome do paciente:</Text>
+        <Text style={customStyles.label}>Nome do paciente:</Text>
         <TextInput
-          style={styles.input}
+          style={customStyles.input}
           value={nomePaciente}
           onChangeText={setNomePaciente}
           placeholder="Insira o nome do paciente"  
         />
 
-        <Text style={styles.label}>CPF:</Text>
+        <Text style={customStyles.label}>CPF:</Text>
         <TextInputMask
           type={'cpf'}
-          style={styles.input}
+          style={customStyles.input}
           value={cpf}
           onChangeText={setCpf}
           placeholder="Insira o CPF do paciente"
         />
 
-        <Text style={styles.label}>Data de nascimento:</Text>
+        <Text style={customStyles.label}>Data de nascimento:</Text>
         <TextInputMask
           type={'datetime'}
           options={{
             format: 'DD/MM/YYYY'
           }}
-          style={styles.input}
+          style={customStyles.input}
           value={nascipaciente}
           onChangeText={setNasciPaciente}
           placeholder="Insira a Data do nascimento do paciente"
         />
 
-        <Text style={styles.label}>Nome do Medico:</Text>
+        <Text style={customStyles.label}>Nome do Medico:</Text>
         <TextInput
-          style={styles.input}
+          style={customStyles.input}
           value={nomeMedico}
           onChangeText={setNomeMedico}
           placeholder="Insira o nome do medico" 
         />
 
-        <Text style={styles.label}>CRM:</Text>
+        <Text style={customStyles.label}>CRM:</Text>
         <TextInputMask
           type={'custom'}
           options={{
             mask: '999999-9'
           }}
-          style={styles.input}
+          style={customStyles.input}
           value={crm}
           onChangeText={setCrm}
           keyboardType="numeric"
           placeholder="Insira o CRM do medico"   
         />
 
-        <Text style={styles.label}>Período de afastamento:</Text>
+        <Text style={customStyles.label}>Período de afastamento:</Text>
         <TextInput
-          style={styles.input}
+          style={customStyles.input}
           value={periodoAfastado}
           onChangeText={setPeriodoAfastado}
           keyboardType="numeric"
           placeholder="Insira o período"
         />
 
-        <Text style={styles.label}>Motivo do afastamento:</Text>
+        <Text style={customStyles.label}>Motivo do afastamento:</Text>
         <TextInput
-          style={styles.input}
+          style={customStyles.input}
           value={reason}
           onChangeText={setReason}
           placeholder="Insira o motivo"
         />
 
-        <Text style={styles.label}>Data da consulta:</Text>
+        <Text style={customStyles.label}>Data da consulta:</Text>
         <TextInputMask
           type={'datetime'}
           options={{
             format: 'DD/MM/YYYY'
           }}
-          style={styles.input}
+          style={customStyles.input}
           value={diaConsul}
           onChangeText={setDiaConsul}
           placeholder="Insira a data da consulta"
         />
 
-        <TouchableOpacity style={styles.buttonSubmit} onPress={generateAtestado}>
-          <Text style={styles.textSubmit}> Gerar Atestado </Text>
+        <TouchableOpacity style={customStyles.buttonSubmit} onPress={generateAtestado}>
+          <Text style={customStyles.textSubmit}> Gerar Atestado </Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  label: {
-    fontSize: 18,
-    marginVertical: 5,
-  },
-  input: {
-    width: '90%',
-    padding: 10,
-    marginVertical: 10,
-    borderWidth: 1,
-    borderRadius: 15,
-    borderColor: '#ccc',
-    color:'#000',
-  },
-  buttonSubmit: {
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    borderRadius: 20,
-    width: '90%',
-    backgroundColor: '#0071CF',
-    marginVertical:'5%',
-  },
-  textSubmit: {  
-    color: 'white', 
-    fontWeight: 'bold'
-},
-});
 
 export default AtestadoGenerator;
 ``

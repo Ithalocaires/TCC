@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { doc, getDoc } from "firebase/firestore";
 import { database } from "../../config/firebase";
+import { customStyles } from '../source/styles';
 
 const Form = ({ navigation, route }) => {
     const [name, setName] = useState('');
@@ -50,11 +51,11 @@ const Form = ({ navigation, route }) => {
     };
 
     return (
-        <View style={Styles.formView}>
-            <Text style={Styles.formTextBlue}>Por favor, insira os dados abaixo para continuar com a consulta</Text>
+        <View style={customStyles.formView}>
+            <Text style={customStyles.formTextBlue}>Por favor, insira os dados abaixo para continuar com a consulta</Text>
 
             <TextInput
-                style={Styles.formInput}
+                style={customStyles.formInput}
                 placeholder="Nome"
                 value={name}
                 editable={false}
@@ -64,7 +65,7 @@ const Form = ({ navigation, route }) => {
             />
 
             <TextInput
-                style={Styles.formInput}
+                style={customStyles.formInput}
                 placeholder="Número da carteirinha SUS"
                 value={susCard}
                 editable={false}
@@ -73,10 +74,10 @@ const Form = ({ navigation, route }) => {
                 keyboardType="numeric"
             />
 
-            <Text style={Styles.textInfo}>Insira suas observações, como sintomas e a quanto tempo está se sentindo dessa forma</Text>
+            <Text style={customStyles.textInfo}>Insira suas observações, como sintomas e a quanto tempo está se sentindo dessa forma</Text>
 
             <TextInput
-                style={Styles.formInputObs}
+                style={customStyles.formInputObs}
                 placeholder="Digite suas observações"
                 value={obs}
                 onChangeText={setObservacoes}
@@ -85,70 +86,10 @@ const Form = ({ navigation, route }) => {
                 multiline
             />
 
-            <TouchableOpacity style={Styles.confirmBtn} onPress={handleSubmitPaciente}>
-                <Text style={Styles.confirmBtnText}>Confirmar dados</Text>
+            <TouchableOpacity style={customStyles.confirmBtn} onPress={handleSubmitPaciente}>
+                <Text style={customStyles.confirmBtnText}>Confirmar dados</Text>
             </TouchableOpacity>
         </View>
     );
 };
-
-const Styles = StyleSheet.create({
-    formView:{
-        flex: 1, 
-        backgroundColor: 'white', 
-        padding: 15,
-        alignItems: 'center',
-    },
-    formTextBlue:{
-        fontSize: 20,  
-        marginBottom: 20,
-        marginTop: 10,
-        color: '#53affa',
-        alignItems: 'center',
-        marginTop: 25,
-        fontWeight: 'bold', 
-        textAlign: 'center',
-    },
-    formInput: {
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 15,
-        padding: 8,
-        marginBottom: 16,
-        marginTop: 25,
-        width: '90%',
-    },
-    formInputObs: {
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 15,
-        padding: 8,
-        marginBottom: 16,
-        textAlignVertical: 'top',
-        marginTop: 30,
-        height: 120,
-        width: '90%',
-    },
-    textInfo: {
-        fontSize: 12,
-        color: 'red',
-        textAlign: 'center',
-        width: '90%',
-        marginTop: 30,
-    },
-    confirmBtn:{
-        padding: 12,
-        borderRadius: 8,
-        alignItems: 'center',
-        borderRadius: 20,
-        width: '90%',
-        backgroundColor: '#0071CF',
-        marginVertical: 10,
-    },
-    confirmBtnText:{
-        color: 'white', 
-        fontWeight: 'bold'
-    },
-})
-
 export default Form;

@@ -5,6 +5,7 @@ import { doc, setDoc } from 'firebase/firestore';  //Busca as propriedades neces
 import { useNavigation } from '@react-navigation/native';  // Biblioteca que permite a navegação entre telas
 import DateTimePicker from '@react-native-community/datetimepicker';  //Componente para escolher uma data
 import { database, auth } from "../../config/firebase"  //Importe o acesso ao authenticator e o database do firebase
+import { customStyles } from '../source/styles';
 
 const SignUpPaciente = () => {
     const [nome, setNome] = useState('');
@@ -68,17 +69,17 @@ const SignUpPaciente = () => {
     //Renderização do Frontend
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Cadasto Paciente</Text>
+        <View style={customStyles.container}>
+            <Text style={customStyles.title}>Cadasto Paciente</Text>
             <TextInput
-                style={styles.input}
+                style={customStyles.input}
                 placeholder="Nome"
                 value={nome}
                 onChangeText={setNome}
                 placeholderTextColor="#000"
             />
             <TextInput
-                style={styles.input}
+                style={customStyles.input}
                 placeholder="E-mail"
                 value={email}
                 onChangeText={setEmail}
@@ -86,15 +87,15 @@ const SignUpPaciente = () => {
                 placeholderTextColor="#000"
             />
             <TextInput
-                style={styles.input}
+                style={input}
                 placeholder="Carteirinha SUS"
                 value={cartaoSUS}
                 onChangeText={setCartaoSUS}
                 placeholderTextColor="#000"
             />
-            <View style={styles.row}>
-                <TouchableOpacity style={styles.datePicker} onPress={() => setShowDatePicker(true)}>
-                    <Text style={styles.datePickerText}>{formatDate(dataNascimento)}</Text>
+            <View style={customStyles.row}>
+                <TouchableOpacity style={customStyles.datePicker} onPress={() => setShowDatePicker(true)}>
+                    <Text style={customStyles.datePickerText}>{formatDate(dataNascimento)}</Text>
                 </TouchableOpacity>
                 {showDatePicker && (
                     <DateTimePicker
@@ -105,7 +106,7 @@ const SignUpPaciente = () => {
                     />
                 )}
                 <TextInput
-                    style={styles.rgInput}
+                    style={customStyles.rgInput}
                     placeholder="RG"
                     value={rg}
                     onChangeText={setRg}
@@ -113,109 +114,21 @@ const SignUpPaciente = () => {
                 />
             </View>
             <TextInput
-                style={styles.input}
+                style={customStyles.input}
                 placeholder="Senha"
                 value={senha}
                 onChangeText={setSenha}
                 secureTextEntry
                 placeholderTextColor="#000"
             />
-             <TouchableOpacity style={styles.buttonSubmit} onPress={handleRegister}>           
-                <Text style={styles.textSubmit}> Cadastrar </Text>
+             <TouchableOpacity style={customStyles.buttonSubmit} onPress={handleRegister}>           
+                <Text style={customStyles.textSubmit}> Cadastrar </Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('Cadastro Médico')}>
-                <Text style={styles.link}>Deseja se cadastrar como Médico?</Text>
+                <Text style={customStyles.link}>Deseja se cadastrar como Médico?</Text>
             </TouchableOpacity>
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 10,
-    },
-    title: {
-        fontSize: 20,  
-        marginBottom: 20,
-        marginTop: 0,
-        color: '#53affa',
-        alignItems: 'center',
-        marginTop: 25,
-        fontWeight: 'bold', 
-        textAlign: 'center',
-    },
-    input: {
-        width: '90%',
-        padding: 10,
-        marginVertical: 10,
-        borderWidth: 1,
-        borderRadius: 15,
-        borderColor: '#ccc',
-        color:'#000',
-    },
-    datePicker:{
-        width: '30%',
-        padding: 10,
-        marginVertical: 10,
-        borderWidth: 1,
-        borderRadius: 15,
-        borderColor: '#ccc',
-        justifyContent:'center' 
-    },
-    rgInput: {
-        width: '68%',
-        padding: 10,
-        marginVertical: 10,
-        borderWidth: 1,
-        borderRadius: 15,
-        borderColor: '#ccc',
-        color:'#000',
-    },
-    button: {
-        backgroundColor: '#007BFF',
-        padding: 10,
-        borderRadius: 8,
-        width: '100%',
-        alignItems: 'center',
-        marginVertical: 10,
-    },
-    buttonText: {
-        color: '#fff',
-        fontSize: 16,
-    },
-    link: {
-        color: '#007BFF',
-        marginTop: 10,
-    },
-    buttonSubmit: {
-        padding: 12,
-        borderRadius: 8,
-        alignItems: 'center',
-        borderRadius: 20,
-        width: '90%',
-        backgroundColor: '#0071CF',
-        marginVertical:'5%',
-    },
-    textSubmit: {  
-        color: 'white', 
-        fontWeight: 'bold'
-    },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '90%',
-    },
-    link: {
-        color: '#007BFF',
-        marginTop: 10,
-    },
-    datePickerText:{
-       color: '#616161',
-
-    },
-});
 
 export default SignUpPaciente;
