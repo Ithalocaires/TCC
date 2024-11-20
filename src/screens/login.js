@@ -17,12 +17,15 @@ const LoginScreen = () => {
             const user = userCredential.user;
             const userId = user.uid; // Obtenha o userId
     
+            console.log('userId do login:', userId);  // Verifique se o userId está correto
+    
             // Salva o token do usuário no AsyncStorage
             await AsyncStorage.setItem('@userToken', userId);
-            
+    
             // Redireciona para a Home ou tela de cadastro com o userId como parâmetro
             navigation.navigate('Home', { userId });
-    
+
+        
         } catch (error) {
             console.error(error);
         }

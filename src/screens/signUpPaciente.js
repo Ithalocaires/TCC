@@ -52,7 +52,7 @@ const SignUpPaciente = () => {
                 }).then(() => {
                     //Caso o cadastro seja feito com sucesso ele irá informar o usuário que foi cadastrado e navegará para a tela de login novamente
                     console.log('Paciente cadastrado com sucesso!');
-                    navigation.navigate('Login'); 
+                    navigation.replace('Login');
                 }).catch(error => {
                     // Caso aconteça algum erro irá informar ao usuário
                     console.error('Erro ao cadastrar paciente:', error);
@@ -87,7 +87,7 @@ const SignUpPaciente = () => {
                 placeholderTextColor="#000"
             />
             <TextInput
-                style={input}
+                style={customStyles.input}
                 placeholder="Carteirinha SUS"
                 value={cartaoSUS}
                 onChangeText={setCartaoSUS}
@@ -103,6 +103,7 @@ const SignUpPaciente = () => {
                         mode="date"
                         display="default"
                         onChange={onChangeDate}
+                        placeholderText='Data de Nascimento'
                     />
                 )}
                 <TextInput

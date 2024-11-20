@@ -60,7 +60,7 @@ if (loading) {
       }}>
          {user ? (
                     // Se o usuário estiver logado, navega para a Home
-                    <Stack.Screen name="Home" component={HomeScreen} options={{title: 'Perfil'}} />
+                    <Stack.Screen name="Home" component={HomeScreen} options={{title: ''}} />
                 ) : (
                     // Se o usuário não estiver logado, navega para a tela de Login
                     <Stack.Screen name="Login" component={LoginScreen} options={{title: ''}}/>

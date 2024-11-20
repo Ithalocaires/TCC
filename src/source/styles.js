@@ -1,4 +1,4 @@
-import {React} from 'react'
+
 import { StyleSheet } from 'react-native'
 
 export const customStyles = StyleSheet.create({
@@ -87,42 +87,39 @@ export const customStyles = StyleSheet.create({
        color: '#616161',
 
     },
-    receitaButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        marginLeft: '10%',  
-        fontWeight:'bold',
-    },
-    logoutButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        marginLeft: '10%',
-        fontWeight:'bold',
-    },
     footer: {
-        padding: 10,
-        backgroundColor: '#f0f0f0',
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'space-around',
         alignItems: 'center',
+        padding: 10,
+        backgroundColor: '#003770',
+        position: 'absolute',
+        bottom: 0,
+        width: '100%',
     },
     receitaButton: {
-        backgroundColor: '#007BFF',
-        borderRadius: 8,
-        width: '25%',
-        marginVertical: 10,
-        padding: 10,
         flexDirection: 'row',
+        justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#4CAF50',
+        borderRadius: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+    },
+    receitaButtonText: {
+        color: 'white',
+        fontSize: 16,
+        marginLeft: 5,
     },
     logoutButton: {
-        backgroundColor: 'red',
-        borderRadius: 8,
-        width: '25%',
-        marginVertical: 10,
-        padding: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
+        backgroundColor: '#FF5722',
+        borderRadius: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+    },
+    logoutButtonText: {
+        color: 'white',
+        fontSize: 16,
     },
     modalContainer: {
         flex: 1,
@@ -149,17 +146,6 @@ export const customStyles = StyleSheet.create({
         borderRadius: 5,
         padding: 10,
         marginBottom: 20,
-    },
-    button: {
-        backgroundColor: '#0071CF',
-        padding: 10,
-        borderRadius: 5,
-        width: '100%',
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: 'white',
-        fontSize: 16,
     },
     formView:{
         flex: 1, 
@@ -272,9 +258,11 @@ export const customStyles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: '0%',
         marginTop: "30%",
-        width: '130%',
+        width: '112%',
         flex: 1,    
         marginBottom: -40,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     homeBodyText:{
         fontSize:16,
@@ -282,12 +270,13 @@ export const customStyles = StyleSheet.create({
         marginBottom:10,
         marginLeft:'5%',
         color:'white',
-        textAlign:'justify',
+        textAlign:'left',
+        marginLeft: '-70%',
     },
     homeBodyBtn:{
         alignItems: 'center',
         width: 72,
-        marginLeft: '6%',
+        marginHorizontal: '3%',
         marginTop: '5%',
 
     },
@@ -365,5 +354,56 @@ export const customStyles = StyleSheet.create({
         alignItems: 'center',
         fontWeight: 'bold', 
         textAlign: 'center',
-    }
+    },
+    card: {
+        backgroundColor: '#f9f9f9',
+        padding: 15,
+        marginVertical: 10,
+        borderRadius: 8,
+        borderColor: '#ddd',
+        borderWidth: 1,
+      },
+      text: {
+        fontSize: 16,
+        marginBottom: 5,
+      },
+      bold: {
+        fontWeight: 'bold',
+      },
+      sendButtonContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: 44,
+        width: 44,
+        marginHorizontal: 10,
+        marginBottom: 5,
+    },
+    sendButton: {
+        backgroundColor: '#FFF',
+        borderRadius: 22,
+        height: 40,
+        width: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    endServiceButtonContainer: {
+        flexDirection: "row",
+        justifyContent: "space-around",
+        alignItems: "center",
+        padding: 10,
+        backgroundColor: "#003770",
+      },
+    endServiceButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#53affa",
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+        borderRadius: 5,
+      },
+    endServiceButtonText: {
+        color: "#fff",
+        marginLeft: 5,
+        fontSize: 16,
+      },
 });

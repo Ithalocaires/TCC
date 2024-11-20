@@ -1,36 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { database } from "../../config/firebase";
 import { customStyles } from '../source/styles';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Form = ({ navigation, route }) => {
-    const [name, setName] = useState('');
-    const [susCard, setSusCard] = useState('');
+    const [nome, setNome] = useState('');
+    const [cartaoSUS, setCartaoSUS] = useState('');
     const [obs, setObservacoes] = useState('');
 
-    const { userId } = route.params;
+    const { userId } = route.params || {};
+
 
     useEffect(() => {
-        const fetchUserData = async () => {
+        const fetchUserIdAndData = async () => {
             try {
-                const userDoc = await getDoc(doc(database, 'pacientes', userId));
+                // Recupera o userId do AsyncStorage caso não seja passado diretamente
+                const storedUserId = userId || await AsyncStorage.getItem('@userToken');
+                if (!storedUserId) {
+                    Alert.alert('Erro', 'Usuário não autenticado.');
+                    navigation.goBack(); // Voltar para a tela anterior se necessário
+                    return;
+                }
+                
+                const userDoc = await getDoc(doc(database, 'pacientes', storedUserId));
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    setName(userData.name || '');
-                    setSusCard(userData.susCard || '');
+                    setNome(userData?.nome || '');
+                    setCartaoSUS(userData?.cartaoSUS || '');
                 } else {
                     Alert.alert('Erro', 'Dados do usuário não encontrados.');
                 }
             } catch (error) {
                 console.error('Erro ao buscar dados do usuário:', error);
+                Alert.alert('Erro', 'Houve um problema ao buscar os dados do usuário.');
             }
         };
-
-        fetchUserData();
+    
+        fetchUserIdAndData();
     }, [userId]);
+    
+    
 
     const handleSubmitPaciente = async () => {
+        
         if (!obs.trim()) {
             Alert.alert('Atenção', 'Por favor, preencha o campo de observações.');
             return;
@@ -38,14 +52,16 @@ const Form = ({ navigation, route }) => {
 
         try {
             await setDoc(doc(database, 'waitRoom', userId), {
-                name,
-                susCard,
+                nome: nome,
+                cartaoSUS: cartaoSUS,
                 obs,
                 chatActive: false,
                 createdAt: new Date()
             });
-            navigation.navigate('WaitRoom', { userRole: 'paciente', name, susCard, obs, userId });
+            console.log('userId:', userId);
+            navigation.navigate('WaitRoom', { userRole: 'paciente', nome: nome, cartaoSUS: cartaoSUS, obs, userId });
         } catch (error) {
+            console.log('userId:', userId);
             console.error('Erro ao adicionar paciente:', error);
         }
     };
@@ -57,7 +73,7 @@ const Form = ({ navigation, route }) => {
             <TextInput
                 style={customStyles.formInput}
                 placeholder="Nome"
-                value={name}
+                value={nome}
                 editable={false}
                 color='black'
                 placeholderTextColor="#999"
@@ -67,7 +83,7 @@ const Form = ({ navigation, route }) => {
             <TextInput
                 style={customStyles.formInput}
                 placeholder="Número da carteirinha SUS"
-                value={susCard}
+                value={cartaoSUS}
                 editable={false}
                 color='black'
                 placeholderTextColor="#999"
