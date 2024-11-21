@@ -62,16 +62,27 @@ const SignUpMedico = () => {
                      //Caso o cadastro seja feito com sucesso ele irá informar o usuário que foi cadastrado e navegará para a tela de login novamente
                     console.log('Médico cadastrado com sucesso!');
                     navigation.replace('Login2');
-                }).catch(error => {
+                }) .catch(error => {
                     // Caso aconteça algum erro irá informar ao usuário
-                    console.error('Erro ao cadastrar Médico:', error);
+                    console.error('Erro ao cadastrar paciente:', error);
                     alert('Erro ao cadastrar. Tente novamente.');
                 });
             })
             .catch(error => {
-                // Caso aconteça algum erro irá informar ao usuário
                 console.error('Erro ao criar conta:', error);
-                alert('Erro ao criar conta. Tente novamente.');
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        alert('Este e-mail já está em uso.');
+                        break;
+                    case 'auth/invalid-email':
+                        alert('E-mail inválido.');
+                        break;
+                    case 'auth/weak-password':
+                        alert('A senha é muito fraca.');
+                        break;
+                    default:
+                        alert('Erro ao criar conta. Tente novamente.');
+                }
             });
     };
 

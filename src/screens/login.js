@@ -28,6 +28,24 @@ const LoginScreen = () => {
         
         } catch (error) {
             console.error(error);
+
+            // Lida com erros específicos
+            switch (error.code) {
+                case 'auth/invalid-email':
+                    Alert.alert('Erro', 'O formato do e-mail é inválido. Por favor, insira um e-mail válido.');
+                    break;
+                case 'auth/user-not-found':
+                    Alert.alert('Erro', 'Usuário não encontrado. Verifique as informações e tente novamente.');
+                    break;
+                case 'auth/wrong-password':
+                    Alert.alert('Erro', 'Senha incorreta. Por favor, tente novamente.');
+                    break;
+                case 'auth/network-request-failed':
+                    Alert.alert('Erro', 'Problema de conexão. Verifique sua internet e tente novamente.');
+                    break;
+                default:
+                    Alert.alert('Erro', 'Ocorreu um erro inesperado. Tente novamente mais tarde.');
+            }
         }
     };
 
