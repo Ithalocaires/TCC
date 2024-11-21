@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react'; // Componentes obrigatórios
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native'; // Componentes nativos do React para o Front
 import { useNavigation } from '@react-navigation/native'; // Navegação para outras telas
 import { signInWithEmailAndPassword } from "firebase/auth"; //Autenticação Firebase
-import { auth } from "../../config/firebase"
+import { auth } from "../../config/firebase"  //importa a função auth na configuração do Firebase
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { customStyles } from '../source/styles';
+import { customStyles } from '../source/styles'; // Styles personalizado para economizar espaço 
 
 const LoginScreen = () => {
     const [email, setEmail] = useState(''); 
@@ -15,7 +15,7 @@ const LoginScreen = () => {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
-            const userId = user.uid; // Obtenha o userId
+            const userId = user.uid; // Obtem o userId
     
             console.log('userId do login:', userId);  // Verifique se o userId está correto
     
@@ -55,6 +55,9 @@ const LoginScreen = () => {
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('Cadastro Paciente')}>
                 <Text style={customStyles.link}>Não tem uma conta? Cadastre-se</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Recuperação')}>
+                <Text style={customStyles.link}>Esqueceu sua senha?</Text>
             </TouchableOpacity>
         </View>
     );

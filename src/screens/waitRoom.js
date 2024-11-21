@@ -111,6 +111,7 @@ const WaitRoom = ({ navigation, route }) => {
                         <TouchableOpacity style={customStyles.pacienteContainer} onPress={() => handleSelectPaciente(item)}>
                             <Text style={customStyles.pacienteNome}>Nome: {item.nome}</Text>
                             <Text style={customStyles.pacienteSusCard}>Carteirinha SUS: {item.cartaoSUS}</Text>
+                            <Text style={customStyles.pacienteObs}>Motivo da consulta: {item.obs}</Text>
                         </TouchableOpacity>
                     )}
                 />

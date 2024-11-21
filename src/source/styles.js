@@ -314,6 +314,7 @@ export const customStyles = StyleSheet.create({
     pacienteSusCard: {
         fontSize: 14,
         color: '#555',
+        marginVertical: 2,
     },
     refreshButtonContainer: {
         position: 'absolute',
@@ -406,4 +407,8 @@ export const customStyles = StyleSheet.create({
         marginLeft: 5,
         fontSize: 16,
       },
+      pacienteObs: {
+        fontSize: 14,
+        color: '#666',
+    },
 });

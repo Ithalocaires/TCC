@@ -70,13 +70,16 @@ const HomeScreen = () => {
     const handleLogout = async () => {
         try {
             await signOut(auth);
-            navigation.navigate('Login');
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'Login' }],
+            });
         } catch (error) {
-            Alert.alert('Erro', 'Não foi possível sair. Tente novamente.');
             console.error('Erro ao fazer logout:', error);
+            alert('Erro ao sair. Tente novamente.');
         }
     };
-
+    
     if (loading) {
         return (
             <View style={customStyles.loadingContainer}>
@@ -137,7 +140,7 @@ const HomeScreen = () => {
                     </TouchableOpacity>
 
                     {/* Botão 4 */}
-                    <TouchableOpacity style={customStyles.homeBodyBtn} onPress={() => navigation.navigate('Atestado')}>
+                    <TouchableOpacity style={customStyles.homeBodyBtn}>
                         <Icon2 name="calendar" size={25} color="#003770" backgroundColor="white" borderRadius={20}
                             style={{ borderRadius: 8, padding: 11, width: 45, paddingHorizontal: 11 }} />
                         <Text style={customStyles.homeBodyBtnText2}>Atestados</Text>

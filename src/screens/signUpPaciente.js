@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';  // Biblioteca que per
 import DateTimePicker from '@react-native-community/datetimepicker';  //Componente para escolher uma data
 import { database, auth } from "../../config/firebase"  //Importe o acesso ao authenticator e o database do firebase
 import { customStyles } from '../source/styles';
+import TextInputMask from 'react-native-text-input-mask';
 
 const SignUpPaciente = () => {
     const [nome, setNome] = useState('');
@@ -37,6 +38,14 @@ const SignUpPaciente = () => {
 
     //Função para registrar usuários (Pacientes)
     const handleRegister = () => {
+        if (!nome || !email || !cartaoSUS || !rg || !senha) {
+            alert('Por favor, preencha todos os campos.');
+            return;
+        }
+        if (senha.length < 6) {
+            alert('A senha deve ter pelo menos 6 caracteres.');
+            return;
+        }
         //Cria um usuário utilizando o email e a senha como autênticação
         createUserWithEmailAndPassword(auth, email, senha)
             //Vincula as credenciais ao usuário cadastrado
@@ -52,7 +61,7 @@ const SignUpPaciente = () => {
                 }).then(() => {
                     //Caso o cadastro seja feito com sucesso ele irá informar o usuário que foi cadastrado e navegará para a tela de login novamente
                     console.log('Paciente cadastrado com sucesso!');
-                    navigation.replace('Login');
+                    navigation.navigate('Login2');
                 }).catch(error => {
                     // Caso aconteça algum erro irá informar ao usuário
                     console.error('Erro ao cadastrar paciente:', error);
@@ -60,9 +69,20 @@ const SignUpPaciente = () => {
                 });
             })
             .catch(error => {
-                // Caso aconteça algum erro irá informar ao usuário
                 console.error('Erro ao criar conta:', error);
-                alert('Erro ao criar conta. Tente novamente.');
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        alert('Este e-mail já está em uso.');
+                        break;
+                    case 'auth/invalid-email':
+                        alert('E-mail inválido.');
+                        break;
+                    case 'auth/weak-password':
+                        alert('A senha é muito fraca.');
+                        break;
+                    default:
+                        alert('Erro ao criar conta. Tente novamente.');
+                }
             });
     };
 
@@ -86,12 +106,13 @@ const SignUpPaciente = () => {
                 keyboardType="email-address"
                 placeholderTextColor="#000"
             />
-            <TextInput
+            <TextInputMask
                 style={customStyles.input}
                 placeholder="Carteirinha SUS"
                 value={cartaoSUS}
-                onChangeText={setCartaoSUS}
+                onChangeText={(formatted, extracted) => setCartaoSUS(extracted)}
                 placeholderTextColor="#000"
+                mask={'[000] [0000] [0000] [0000]'}
             />
             <View style={customStyles.row}>
                 <TouchableOpacity style={customStyles.datePicker} onPress={() => setShowDatePicker(true)}>
@@ -106,11 +127,12 @@ const SignUpPaciente = () => {
                         placeholderText='Data de Nascimento'
                     />
                 )}
-                <TextInput
+                <TextInputMask
                     style={customStyles.rgInput}
                     placeholder="RG"
                     value={rg}
-                    onChangeText={setRg}
+                    onChangeText={(formatted, extracted) => setRg(extracted)}
+                    mask={'[00].[000].[000]-[0]'}
                     placeholderTextColor="#000"
                 />
             </View>

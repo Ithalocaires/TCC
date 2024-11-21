@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';  // Biblioteca que per
 import DateTimePicker from '@react-native-community/datetimepicker';  //Componente para escolher uma data
 import { auth, database } from "../../config/firebase"; //Importe o acesso ao authenticator e o database do firebase
 import { customStyles } from '../source/styles';
+import TextInputMask from 'react-native-text-input-mask';
 
 const SignUpMedico = () => {
     const [nome, setNome] = useState('');
@@ -37,6 +38,14 @@ const SignUpMedico = () => {
 
     //Função para registrar usuários (Méidico)
     const handleRegister = () => {
+        if (!nome || !email || !cartaoSUS || !rg || !senha) {
+            alert('Por favor, preencha todos os campos.');
+            return;
+        }
+        if (senha.length < 6) {
+            alert('A senha deve ter pelo menos 6 caracteres.');
+            return;
+        }
         //Cria um usuário utilizando o email e a senha como autênticação
         createUserWithEmailAndPassword(auth, email, senha)
             //Vincula as credenciais ao usuário cadastrado
@@ -52,7 +61,7 @@ const SignUpMedico = () => {
                 }).then(() => {
                      //Caso o cadastro seja feito com sucesso ele irá informar o usuário que foi cadastrado e navegará para a tela de login novamente
                     console.log('Médico cadastrado com sucesso!');
-                    navigation.replace('Login');
+                    navigation.replace('Login2');
                 }).catch(error => {
                     // Caso aconteça algum erro irá informar ao usuário
                     console.error('Erro ao cadastrar Médico:', error);
@@ -86,11 +95,13 @@ const SignUpMedico = () => {
                 keyboardType="email-address"
                 placeholderTextColor="#000"
             />
-            <TextInput
+            <TextInputMask
                 style={customStyles.input}
                 placeholder="CRM"
                 value={CRM}
-                onChangeText={setCRM}
+                onChangeText={(formatted, extracted) => setCRM(extracted)}
+                mask={'[00000]-[AA]'} // Máscara para CRM
+                keyboardType="default"
                 placeholderTextColor="#000"
             />
              <View style={customStyles.row}>
@@ -105,11 +116,12 @@ const SignUpMedico = () => {
                         onChange={onChangeDate}
                     />
                 )}
-                <TextInput
+                <TextInputMask
                     style={customStyles.rgInput}
                     placeholder="RG"
                     value={rg}
-                    onChangeText={setRg}
+                    onChangeText={(formatted, extracted) => setRg(extracted)}
+                    mask={'[00].[000].[000]-[0]'}
                     placeholderTextColor="#000"
                 />
             </View>

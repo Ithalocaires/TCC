@@ -14,6 +14,8 @@ import { onAuthStateChanged } from 'firebase/auth';
 import 'react-native-gesture-handler';
 import { User } from 'firebase/auth';
 import AtestadoGenerator from './src/screens/atestado';
+import PasswordRecovery from './src/screens/passwordRecovery';
+
 
 const Stack = createStackNavigator();
 
@@ -66,9 +68,10 @@ if (loading) {
                     <Stack.Screen name="Login" component={LoginScreen} options={{title: ''}}/>
                 )}
 
+        <Stack.Screen name="Login2" component={LoginScreen} options={{title: ''}}/>
 
         {/*Tela formulário*/}
-        <Stack.Screen name="Consulta" component={Form} options={{title: 'Formulário'}}/>
+        <Stack.Screen name="Consulta" component={Form} options={{title: ''}}/>
 
         {/*Tela Consulta*/}
         <Stack.Screen name="Chat" component={ChatScreen} options={{title: ''}} />
@@ -84,6 +87,9 @@ if (loading) {
 
         {/*Tela de Atestados*/}
         <Stack.Screen name='Atestado' component={AtestadoGenerator} options={{title: ''}}/>
+
+        {/*Tela de Recuperação de Senha*/}
+        <Stack.Screen name='Recuperação' component={PasswordRecovery} options={{title: ''}}/>
       </Stack.Navigator>
     </NavigationContainer>
   )
