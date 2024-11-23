@@ -38,7 +38,7 @@ const SignUpMedico = () => {
 
     //Função para registrar usuários (Méidico)
     const handleRegister = () => {
-        if (!nome || !email || !cartaoSUS || !rg || !senha) {
+        if (!nome || !email || !CRM || !rg || !senha) {
             alert('Por favor, preencha todos os campos.');
             return;
         }

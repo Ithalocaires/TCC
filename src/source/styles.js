@@ -203,13 +203,6 @@ export const customStyles = StyleSheet.create({
         color: 'white', 
         fontWeight: 'bold'
     },
-    homeContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-        width:'100%'
-    },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -219,80 +212,60 @@ export const customStyles = StyleSheet.create({
         fontSize: 18,
         marginVertical: 5,
     },
-    homeTitle: {
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+        paddingHorizontal: 16,
+        paddingTop: 16,
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '30%',
+    },
+    greeting: {
         fontSize: 24,
         fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    profileInfo: {
-        marginVertical: 20,
-    },
-    homeText: {
-        fontSize: 18,
-        marginVertical: 5,
-    },
-    homeLogoutButton: {
-        backgroundColor: '#ff4d4d',
-        padding: 10,
-        borderRadius: 5,
-        marginTop: 10,
-    },
-    homeLogoutButtonText: {
-        color: 'white',
-        fontSize: 18,
-    },
-    homeNavigationButton: {
-        backgroundColor: '#007BFF',
-        padding: 10,
-        borderRadius: 5,
-        marginTop: 10,
-    },
-    homeNavigationButtonText: {
-        color: 'white',
-        fontSize: 18,
-    },
-    homeBody:{
-        backgroundColor: '#003770',
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        paddingVertical: 10,
-        paddingHorizontal: '0%',
-        marginTop: "30%",
-        width: '112%',
-        flex: 1,    
-        marginBottom: -40,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    homeBodyText:{
-        fontSize:16,
-        fontWeight:'bold',
-        marginBottom:10,
-        marginLeft:'5%',
-        color:'white',
-        textAlign:'left',
-        marginLeft: '-70%',
-    },
-    homeBodyBtn:{
-        alignItems: 'center',
-        width: 72,
-        marginHorizontal: '3%',
-        marginTop: '5%',
+        color: '#0071CF',
+        textAlign: 'center',
 
     },
-    homeBodyBtnText:{
-        marginTop: '10%',
-        color:'white',
-        textAlign:'center',
-    },
-    homeBodyBtnText2:{
-        marginTop: '10%',
-        color:'white',
-        textAlign: 'center',
-    },
-    homeBtnContainer:{
-        height:'40%',
+    buttonContainer: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+    },
+    Homebutton: {
+        width: '45%',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 8,
+        marginBottom: 16,
+        paddingVertical: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        elevation: 4, // Sombra no Android
+        shadowColor: '#000', // Sombra no iOS
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        height: '50%',
+        width: '49%',
+        padding: '5%'
+    },
+    HomebuttonText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#333',
+        marginTop: 8,
+        textAlign: 'center',
+        marginRight: '15%',
+        flex: 1,    
+        textAlign: 'left',
+    },
+    profileIcon: {
+        padding: 8,
     },
     waitRoomContainer: {
         flex: 1,

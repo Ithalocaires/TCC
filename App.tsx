@@ -51,18 +51,19 @@ if (loading) {
   return(
     <NavigationContainer>
       {/*Navegação entre telas*/}
-      <Stack.Navigator   screenOptions={{
+      <Stack.Navigator
+      screenOptions={{
         headerStyle: {
-          backgroundColor: '#003770',
+          backgroundColor: '#FFFFFF', // Fundo branco
         },
-        headerTintColor: '#fff',
+        headerTintColor: '#0071CF', // Cor da seta e texto
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: 'bold', // Estilo opcional para o título
         },
       }}>
          {user ? (
                     // Se o usuário estiver logado, navega para a Home
-                    <Stack.Screen name="Home" component={HomeScreen} options={{title: ''}} />
+                    <Stack.Screen name="Home" component={HomeScreen} options={{title: '' }} />
                 ) : (
                     // Se o usuário não estiver logado, navega para a tela de Login
                     <Stack.Screen name="Login" component={LoginScreen} options={{title: ''}}/>

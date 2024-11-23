@@ -14,6 +14,7 @@ const HomeScreen = () => {
     const [loading, setLoading] = useState(true);
     const navigation = useNavigation();
 
+
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
@@ -96,91 +97,62 @@ const HomeScreen = () => {
         );
     }
 
-    return (
-        <View style={customStyles.homeContainer}>
-            <Text style={customStyles.homeTitle}>Perfil do Usuário</Text>
-            <View style={customStyles.profileInfo}>
-                <Text style={customStyles.homeText}>Nome: {user.nome || "Nome não disponível"}</Text>
-                <Text style={customStyles.homeText}>Email: {user.email}</Text>
-                <Text style={customStyles.homeText}>RG: {user.rg}</Text>
-                {user.CRM && <Text style={customStyles.homeText}>CRM: {user.CRM}</Text>}
-                {user.cartaoSUS && <Text style={customStyles.homeText}>Cartão SUS: {user.cartaoSUS}</Text>}
-                <Text style={customStyles.homeText}>Tipo de Usuário: {user.CRM ? "Médico" : "Paciente"}</Text>
-            </View>
-
-            <TouchableOpacity style={customStyles.homeLogoutButton} onPress={handleLogout}>
-                <Text style={customStyles.homeLogoutButtonText}>Logout</Text>
-            </TouchableOpacity>
-
-            <View style={customStyles.homeBody}>
-                <Text style={customStyles.homeBodyText}> Ações </Text>
-
-                {/* Primeira Linha de botões */}
-                <View style={customStyles.homeBtnContainer}>
-
-                    {/* Botão 1 */}
-                    <TouchableOpacity style={customStyles.homeBodyBtn} onPress={() => navigation.navigate('HistoricoAtestados', { userId: user.userId })}>
-                        <Icon name="newspaper-outline" size={25} color="#003770" backgroundColor="white" borderRadius={20}
-                            style={{ borderRadius: 8, padding: 12, paddingHorizontal: 10 }} />
-                        <Text style={customStyles.homeBodyBtnText}>Conteúdos</Text>
-                    </TouchableOpacity>
-
-                    {/* Botão 2 */}
-                    <TouchableOpacity style={customStyles.homeBodyBtn}>
-                        <Icon2 name="hospital-o" size={25} color="#003770" backgroundColor="white" borderRadius={20}
-                            style={{ borderRadius: 8, padding: 11, width: 45, paddingHorizontal: 13 }} />
-                        <Text style={customStyles.homeBodyBtnText2}>Rede de Saúde</Text>
-                    </TouchableOpacity>
-
-                    {/* Botão 3 */}
-                    <TouchableOpacity style={customStyles.homeBodyBtn}>
-                        <Icon2 name="qrcode" size={25} color="#003770" backgroundColor="white" borderRadius={20}
-                            style={{ borderRadius: 8, padding: 11, width: 45, paddingHorizontal: 12 }} />
-                        <Text style={customStyles.homeBodyBtnText2}>Valida Cartão</Text>
-                    </TouchableOpacity>
-
-                    {/* Botão 4 */}
-                    <TouchableOpacity style={customStyles.homeBodyBtn}>
-                        <Icon2 name="calendar" size={25} color="#003770" backgroundColor="white" borderRadius={20}
-                            style={{ borderRadius: 8, padding: 11, width: 45, paddingHorizontal: 11 }} />
-                        <Text style={customStyles.homeBodyBtnText2}>Atestados</Text>
-                    </TouchableOpacity>
-                </View>
-
-                {/* Segunda Linha de botões */}
-                <View style={customStyles.homeBtnContainer}>
-
-                    {/* Botão 5 */}
-                    <TouchableOpacity style={customStyles.homeBodyBtn}>
-                        <Icon name="chatbubble-ellipses-outline" size={25} color="#003770" backgroundColor="white" borderRadius={20}
-                            style={{ borderRadius: 8, padding: 10 }} />
-                        <Text style={customStyles.homeBodyBtnText2}>Fale com meu SUS digital</Text>
-                    </TouchableOpacity>
-
-                    {/* Botão 6 */}
-                    <TouchableOpacity style={customStyles.homeBodyBtn}>
-                        <Icon2 name="hospital-o" size={25} color="#003770" backgroundColor="white" borderRadius={20}
-                            style={{ borderRadius: 8, padding: 11, width: 45, paddingHorizontal: 12 }} />
-                        <Text style={customStyles.homeBodyBtnText2}>Sobre o SUS</Text>
-                    </TouchableOpacity>
-
-                    {/* Botão 7 */}
-                    <TouchableOpacity style={customStyles.homeBodyBtn}>
-                        <Icon name="information-circle-outline" size={35} color="#003770" backgroundColor="white" borderRadius={20}
-                            style={{ borderRadius: 8, paddingVertical: 6, width: 46, paddingHorizontal: 6 }} />
-                        <Text style={customStyles.homeBodyBtnText2}>Termos de utilização</Text>
-                    </TouchableOpacity>
-
-                    {/* Botão 8 - Navegação condicional */}
-                    <TouchableOpacity style={customStyles.homeBodyBtn} onPress={() => navigation.navigate(userRole === 'medico' ? 'WaitRoom' : 'Consulta', { userId: user.userId, userRole })}>
-                        <Icon2 name="mobile-phone" size={35} color="#003770" backgroundColor="white" borderRadius={20}
-                            style={{ borderRadius: 8, padding: 5, width: 45, paddingHorizontal: 15 }} />
-                        <Text style={customStyles.homeBodyBtnText2}>Consulta pelo Celular</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
+    const buttons = [
+        { 
+          id: '1', 
+          title: 'Rede Credenciada', 
+          icon: 'bookmarks', 
+          //onPress: () => navigation.navigate('RedeCredenciada') 
+        },
+        { 
+          id: '2', 
+          title: 'Consulta pelo Celular', 
+          icon: 'chatbox-outline', 
+          onPress: () => navigation.navigate(userRole === 'medico' ? 'WaitRoom' : 'Consulta', { userId: user.userId, userRole }) 
+        },
+        { 
+          id: '3', 
+          title: 'Como emitir', 
+          icon: 'newspaper-outline', 
+          onPress: () => console.log('Clicou em: Como emitir') 
+        },
+        { 
+          id: '4', 
+          title: 'Histórico', 
+          icon: 'analytics-outline', 
+          //onPress: () => navigation.navigate('Historico') 
+        },
+      ];
+      
+      // Renderização do botão
+      const renderButton = (button) => (
+        <TouchableOpacity
+          key={button.id}
+          style={customStyles.Homebutton}
+          onPress={button.onPress} // Usa a ação específica do botão
+        >
+          <Text style={customStyles.HomebuttonText}>{button.title}</Text>
+          <Icon name={button.icon} size={25} color="#0071CF" />
+        </TouchableOpacity>
+      );
+    
+      return (
+      <View style={customStyles.container}>
+        {/* Cabeçalho com saudação e ícone de perfil */}
+        <View style={customStyles.header}>
+        <Text style={customStyles.greeting}>Olá, Boas Vindas {user.nome.split(' ')[0]}!</Text>
+          <TouchableOpacity
+            style={customStyles.profileIcon}
+            onPress={() => console.log('Acessou o perfil!')}
+          >
+            <Icon name="person-circle-outline" size={30} color="#0071CF"  />
+          </TouchableOpacity>
         </View>
-    );
-};
+          <View style={customStyles.buttonContainer}>
+            {buttons.map(renderButton)}
+          </View>
+        </View>
+      );
+    };
 
 export default HomeScreen;
