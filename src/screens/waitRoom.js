@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, TouchableOpacity, Text, View, ActivityIndicator, StyleSheet, Alert } from 'react-native';
-import { collection, getDocs, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, getDoc } from '@firebase/firestore';
+import { collection, getDocs, onSnapshot, doc, updateDoc, deleteDoc, getDoc, query, orderBy, setDoc, where } from '@firebase/firestore';
 import { database } from "../../config/firebase";
 import Icon from 'react-native-vector-icons/Ionicons';
 import { customStyles } from '../source/styles';
@@ -60,27 +60,63 @@ const WaitRoom = ({ navigation, route }) => {
 
     const handleSelectPaciente = async (paciente) => {
         const pacienteRef = doc(database, 'waitRoom', paciente.id);
-
+        const chatRef = collection(database, 'chatSessions'); // Certifique-se de que este é o caminho correto.
+        const q = query(chatRef, where("pacienteId", "==", paciente.id), orderBy("createdAt", "desc"));
+    
         try {
-            const pacienteDoc = await getDoc(pacienteRef);
-
-            if (pacienteDoc.exists() && pacienteDoc.data().chatActive) {
-                Alert.alert("Erro", "Esse paciente já está sendo atendido");
-                fetchPacientes();
+            const chatDocs = await getDocs(q);
+    
+            if (!chatDocs.empty) {
+                const previousChat = chatDocs.docs[0].data();
+    
+                if (previousChat.status === 'encerrada') {
+                    // Reativar chat encerrado
+                    await updateDoc(doc(chatRef, previousChat.sessionId), {
+                        status: 'ativo',
+                        reactivatedAt: new Date(),
+                        medicoId: userId, // Incluindo medicoId na reativação
+                    });
+    
+                    await updateDoc(pacienteRef, {
+                        chatActive: true,
+                        sessionId: previousChat.sessionId,
+                    });
+    
+                    navigation.navigate('Chat', {
+                        sessionId: previousChat.sessionId,
+                        nome: paciente.nome,
+                        cartaoSus: paciente.cartaoSUS,
+                        obs: paciente.obs,
+                        userRole: 'medico',
+                        userId,
+                    });
+                } else {
+                    Alert.alert('Erro', 'O paciente já está em consulta ativa.');
+                }
             } else {
+                // Criar um novo chat
+                const newChatRef = doc(chatRef);
+                await setDoc(newChatRef, {
+                    sessionId: newChatRef.id,
+                    pacienteId: paciente.id,
+                    medicoId: userId,
+                    nomePaciente: paciente.nome,
+                    status: 'ativo',
+                    createdAt: new Date(),
+                });
+    
                 await updateDoc(pacienteRef, {
                     chatActive: true,
-                    sessionId: paciente.id
+                    sessionId: newChatRef.id,
                 });
-
-                await deleteDoc(pacienteRef);
-                setPacientes(prevPacientes => prevPacientes.filter(p => p.id !== paciente.id));
-
-                navigation.navigate('Chat', { 
-                    sessionId: paciente.id, 
-                    nome: paciente.nome, 
-                    userRole: 'medico', 
-                    userId: 'medico' 
+    
+                navigation.navigate('Chat', {
+                    sessionId: newChatRef.id,
+                    nome: paciente.nome,
+                    cartaoSus: paciente.cartaoSUS,
+                    obs: paciente.obs,
+                    userRole: 'medico',
+                    userId,
                 });
             }
         } catch (error) {

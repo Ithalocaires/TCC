@@ -50,7 +50,7 @@ const LoginScreen = () => {
     };
 
     return (
-        <View style={customStyles.container}>
+        <View style={customStyles.loginContainer}>
             <Text style={customStyles.title}>Login</Text>
             <TextInput
                 style={customStyles.input}

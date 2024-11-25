@@ -13,8 +13,11 @@ import { auth } from './config/firebase'; // Firebase Authentication import
 import { onAuthStateChanged } from 'firebase/auth';
 import 'react-native-gesture-handler';
 import { User } from 'firebase/auth';
-import AtestadoGenerator from './src/screens/atestado';
 import PasswordRecovery from './src/screens/passwordRecovery';
+import ProfileScreen from './src/screens/profileScreen';
+import HistoryScreen from './src/screens/chatHistory';
+
+
 
 
 const Stack = createStackNavigator();
@@ -86,11 +89,14 @@ if (loading) {
         {/*Tela de Cadastro Médico*/}
         <Stack.Screen name="Cadastro Médico" component={SignUpMedico} options={{title: ''}} />
 
-        {/*Tela de Atestados*/}
-        <Stack.Screen name='Atestado' component={AtestadoGenerator} options={{title: ''}}/>
-
         {/*Tela de Recuperação de Senha*/}
         <Stack.Screen name='Recuperação' component={PasswordRecovery} options={{title: ''}}/>
+
+        {/*Tela de Perfil*/}
+        <Stack.Screen name='Perfil' component={ProfileScreen} options={{title: ''}}/>
+
+        {/*Tela de Histórico de chats*/}
+        <Stack.Screen name='Historico' component={HistoryScreen} options={{title: ''}}/>
       </Stack.Navigator>
     </NavigationContainer>
   )

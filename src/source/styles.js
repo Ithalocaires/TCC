@@ -2,11 +2,19 @@
 import { StyleSheet } from 'react-native'
 
 export const customStyles = StyleSheet.create({
-    container: {
+    loginContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         padding: 10,
+        backgroundColor: '#FFFFFF',
+    },
+    signUpContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 5,
+        backgroundColor: '#FFFFFF',
     },
     title: {
         fontSize: 20,  
@@ -207,6 +215,7 @@ export const customStyles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#FFFFFF',
     },
     loadingText: {
         fontSize: 18,
@@ -227,7 +236,7 @@ export const customStyles = StyleSheet.create({
     greeting: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#0071CF',
+        color: '#53affa',
         textAlign: 'center',
 
     },
@@ -270,6 +279,7 @@ export const customStyles = StyleSheet.create({
     waitRoomContainer: {
         flex: 1,
         padding: 10,
+        backgroundColor: '#FFFFFF',
     },
     pacienteContainer: {
         padding: 15,

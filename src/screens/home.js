@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Button, ActivityIndicator, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, Button, ActivityIndicator, StyleSheet, TouchableOpacity, Alert, Linking } from 'react-native';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth, database } from '../../config/firebase';
 import { doc, getDoc } from 'firebase/firestore';
@@ -27,6 +27,10 @@ const HomeScreen = () => {
 
         return unsubscribe;
     }, []);
+
+    const linkExt = useCallback(() => {
+      Linking.openURL("https://prescricaoeletronica.cfm.org.br/faq_medicos/assinatura-digital/")
+    }, [])
 
     const fetchUserData = async (userId) => {
         try {
@@ -68,18 +72,6 @@ const HomeScreen = () => {
         }
     };
 
-    const handleLogout = async () => {
-        try {
-            await signOut(auth);
-            navigation.reset({
-                index: 0,
-                routes: [{ name: 'Login' }],
-            });
-        } catch (error) {
-            console.error('Erro ao fazer logout:', error);
-            alert('Erro ao sair. Tente novamente.');
-        }
-    };
     
     if (loading) {
         return (
@@ -114,13 +106,13 @@ const HomeScreen = () => {
           id: '3', 
           title: 'Como emitir', 
           icon: 'newspaper-outline', 
-          onPress: () => console.log('Clicou em: Como emitir') 
+          onPress: () => {linkExt}
         },
         { 
           id: '4', 
           title: 'Histórico', 
           icon: 'analytics-outline', 
-          //onPress: () => navigation.navigate('Historico') 
+          onPress: () => navigation.navigate('Historico', { userId: user.userId, userRole }) 
         },
       ];
       
@@ -132,7 +124,7 @@ const HomeScreen = () => {
           onPress={button.onPress} // Usa a ação específica do botão
         >
           <Text style={customStyles.HomebuttonText}>{button.title}</Text>
-          <Icon name={button.icon} size={25} color="#0071CF" />
+          <Icon name={button.icon} size={25} color="#53affa" />
         </TouchableOpacity>
       );
     
@@ -143,9 +135,9 @@ const HomeScreen = () => {
         <Text style={customStyles.greeting}>Olá, Boas Vindas {user.nome.split(' ')[0]}!</Text>
           <TouchableOpacity
             style={customStyles.profileIcon}
-            onPress={() => console.log('Acessou o perfil!')}
+            onPress={() => navigation.navigate('Perfil')}
           >
-            <Icon name="person-circle-outline" size={30} color="#0071CF"  />
+            <Icon name="person-circle-outline" size={30} color="#53affa"  />
           </TouchableOpacity>
         </View>
           <View style={customStyles.buttonContainer}>

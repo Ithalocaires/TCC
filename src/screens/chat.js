@@ -1,7 +1,7 @@
 import { GiftedChat, Bubble, Send, InputToolbar } from 'react-native-gifted-chat';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { View, Alert, TouchableOpacity, StyleSheet } from 'react-native';
-import { collection, addDoc, onSnapshot, query, orderBy, doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
+import { collection, addDoc, onSnapshot, query, orderBy, doc, getDoc, updateDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { database } from "../../config/firebase";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -15,6 +15,58 @@ const ChatScreen = () => {
     const [userRole, setUserRole] = useState('medico');
     const [dadosMedico, setDadosMedico] = useState({});
     const [dadosPaciente, setDadosPaciente] = useState({});
+    const timeoutRef = useRef(null); 
+
+      // Função para encerrar consulta automaticamente
+      const encerrarConsultaAutomaticamente = async () => {
+        try {
+            const sessionRef = doc(database, 'chatSessions', sessionId);
+            const archiveRef = collection(database, 'closedChats');
+            const sessionSnap = await getDoc(sessionRef);
+    
+            if (sessionSnap.exists()) {
+                const sessionData = sessionSnap.data();
+    
+                // Adiciona o chat encerrado na coleção "closedChats"
+                const closedChatRef = doc(archiveRef, sessionId);
+                await setDoc(closedChatRef, {
+                    ...sessionData,
+                    status: 'encerrada',
+                    endedAt: new Date(),
+                    accessibleUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias
+                });
+    
+                // Atualiza o status do paciente e do médico para liberar novas consultas
+                if (sessionData.pacienteId) {
+                    const pacienteRef = doc(database, 'pacientes', sessionData.pacienteId);
+                    await updateDoc(pacienteRef, { possuiConsultaAtiva: false });
+                }
+    
+                if (sessionData.medicoId) {
+                    const medicoRef = doc(database, 'medicos', sessionData.medicoId);
+                    await updateDoc(medicoRef, { possuiConsultaAtiva: false });
+                }
+    
+                // Remove o chat ativo
+                await deleteDoc(sessionRef);
+            }
+    
+            // Alerta o usuário e redireciona para a tela inicial
+            Alert.alert('Consulta Encerrada', 'A consulta foi encerrada com sucesso.');
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'Home' }],
+            });
+        } catch (error) {
+            console.error('Erro ao encerrar consulta automaticamente:', error);
+        }
+    };
+    const configurarTimeout = () => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current); // Limpa o temporizador anterior
+        timeoutRef.current = setTimeout(() => {
+            encerrarConsultaAutomaticamente(); // Encerra a consulta após 10 minutos de inatividade
+        }, 10 * 60 * 1000); // 10 minutos
+    };
 
     // Atualizar o status para "ativo" ao abrir o chat
     useEffect(() => {
@@ -69,16 +121,12 @@ const ChatScreen = () => {
     useEffect(() => {
         const getMessages = async () => {
             try {
-                //Busca as mensagens no banco de dados na tabela sessionId
                 const values = query(
                     collection(database, `chatSessions/${sessionId}/messages`),
-                    // Ordena as mensagens por data de criação, deixando as mais antigas no topo e mais recentes abaixo
                     orderBy('createdAt', 'desc')
                 );
-                //O onSnapshot é um listener do Firebase que permite uma verificação continua
                 onSnapshot(values, (snapshot) => {
-                    setMessages(
-                        //Faz uma verificação se foram envidas mensagens novas
+                        setMessages(
                         snapshot.docs.map(doc => ({
                             _id: doc.id,
                             createdAt: doc.data().createdAt.toDate(),
@@ -86,13 +134,17 @@ const ChatScreen = () => {
                             user: doc.data().user,
                         }))
                     );
+                    configurarTimeout(); // Reinicia o temporizador a cada mensagem nova
                 });
-                //Tratamento de exceçõs para caso o App apresentar problmas
             } catch (error) {
                 console.error("Erro ao buscar mensagens: ", error);
             }
         };
         getMessages();
+
+        return () => {
+            if (timeoutRef.current) clearTimeout(timeoutRef.current); // Limpa o temporizador ao desmontar
+        };
     }, [sessionId]);
 
     // Enviar mensagem
@@ -118,7 +170,6 @@ const ChatScreen = () => {
 
     // Encerrar consulta
     const encerrarConsulta = async () => {
-        // Emite um alerta perguntando ao médico se ele realmente deseja encerrar a consulta
         Alert.alert(
             "Encerrar Consulta",
             "Tem certeza de que deseja encerrar a consulta? Essa ação não pode ser desfeita.",
@@ -130,33 +181,52 @@ const ChatScreen = () => {
                 {
                     text: "Encerrar",
                     style: "destructive",
-                    // Ao confirmar a ação o app irá fazer uma busca no banco de dados buscando a sessão atual
                     onPress: async () => {
                         try {
-                            // O docRef vai apontar um documento dentro do firestore para que possa ser manipulado
-                            const docRef = doc(database, 'chatSessions', sessionId);
-                            // O docSnape irá ler o documento apontado pelo docRef, a parte await serve para
-                            // aguardar uma resposta do docRef
-                            const docSnap = await getDoc(docRef);
-                            
-                            // Se a consulta já havia sido encerrada anteriormente ele irá atualizar novamente a consulta como encerrada
-                            if (docSnap.exists()) {
-                                await updateDoc(docRef, {
+                            const sessionRef = doc(database, 'chatSessions', sessionId);
+                            const archiveRef = collection(database, 'closedChats');
+                            const sessionSnap = await getDoc(sessionRef);
+    
+                            if (sessionSnap.exists()) {
+                                const sessionData = sessionSnap.data();
+    
+                                // Verificar se medicoId está presente
+                                if (!sessionData.medicoId) {
+                                    console.error("medicoId está ausente no documento da sessão.");
+                                    Alert.alert("Erro", "Dados do médico estão incompletos. Não é possível encerrar a consulta.");
+                                    return;
+                                }
+    
+                                const medicoRef = doc(database, 'medicos', sessionData.medicoId);
+                                const medicoSnap = await getDoc(medicoRef);
+    
+                                let nomeMedico = "Desconhecido";
+                                if (medicoSnap.exists()) {
+                                    nomeMedico = medicoSnap.data().nome || "Desconhecido"; // Campo 'nome' do médico
+                                }
+    
+                                // Atualiza o status do chat para "encerrada" antes de arquivar
+                                await updateDoc(sessionRef, { status: 'encerrada' });
+    
+                                // Adiciona o chat encerrado na coleção 'closedChats'
+                                const closedChatRef = doc(archiveRef, sessionId);
+                                await setDoc(closedChatRef, {
+                                    ...sessionData,
+                                    nomeMedico, // Salva o nome correto do médico
                                     status: 'encerrada',
                                     endedAt: new Date(),
+                                    accessibleUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias
                                 });
-
-                            // Caso não tenha nenhum registrado de uma consulta com esse ID encerrada anteriormente
-                            // Será criada uma referência e atribuida o status de 'encerrada'
+    
+                                // Remove o chat ativo
+                                await deleteDoc(sessionRef);
                             } else {
-                                await setDoc(docRef, {
-                                    status: 'encerrada',
-                                    createdAt: new Date(),
-                                    endedBy: userId,
-                                });
+                                console.error("Sessão não encontrada para encerrar.");
+                                Alert.alert("Erro", "Sessão não encontrada.");
+                                return;
                             }
-
-                            // Redirecionar ambos os usuários para a tela Home
+    
+                            // Redirecionar o médico para a tela Home
                             navigation.reset({
                                 index: 0,
                                 routes: [{ name: 'Home' }],
@@ -170,6 +240,8 @@ const ChatScreen = () => {
             { cancelable: true }
         );
     };
+    
+    
 
     useEffect(() => {
         const docRef = doc(database, 'chatSessions', sessionId);
