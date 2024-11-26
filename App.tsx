@@ -13,7 +13,12 @@ import { auth } from './config/firebase'; // Firebase Authentication import
 import { onAuthStateChanged } from 'firebase/auth';
 import 'react-native-gesture-handler';
 import { User } from 'firebase/auth';
-import AtestadoGenerator from './src/screens/atestado';
+import PasswordRecovery from './src/screens/passwordRecovery';
+import ProfileScreen from './src/screens/profileScreen';
+import HistoryScreen from './src/screens/chatHistory';
+
+
+
 
 const Stack = createStackNavigator();
 
@@ -49,28 +54,28 @@ if (loading) {
   return(
     <NavigationContainer>
       {/*Navegação entre telas*/}
-      <Stack.Navigator   screenOptions={{
+      <Stack.Navigator
+      screenOptions={{
         headerStyle: {
-          backgroundColor: '#003770',
+          backgroundColor: '#FFFFFF', // Fundo branco
         },
-        headerTintColor: '#fff',
+        headerTintColor: '#0071CF', // Cor da seta e texto
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: 'bold', // Estilo opcional para o título
         },
       }}>
          {user ? (
                     // Se o usuário estiver logado, navega para a Home
-                    <Stack.Screen name="Home" component={HomeScreen} options={{title: 'Perfil'}} />
+                    <Stack.Screen name="Home" component={HomeScreen} options={{title: '' }} />
                 ) : (
                     // Se o usuário não estiver logado, navega para a tela de Login
                     <Stack.Screen name="Login" component={LoginScreen} options={{title: ''}}/>
                 )}
 
-        {/*Tela Login*/}
-        <Stack.Screen name="Login" component={LoginScreen} options={{title: ''}}/>
+        <Stack.Screen name="Login2" component={LoginScreen} options={{title: ''}}/>
 
         {/*Tela formulário*/}
-        <Stack.Screen name="Consulta" component={Form} options={{title: 'Formulário'}}/>
+        <Stack.Screen name="Consulta" component={Form} options={{title: ''}}/>
 
         {/*Tela Consulta*/}
         <Stack.Screen name="Chat" component={ChatScreen} options={{title: ''}} />
@@ -84,8 +89,14 @@ if (loading) {
         {/*Tela de Cadastro Médico*/}
         <Stack.Screen name="Cadastro Médico" component={SignUpMedico} options={{title: ''}} />
 
-        {/*Tela de Atestados*/}
-        <Stack.Screen name='Atestado' component={AtestadoGenerator} options={{title: ''}}/>
+        {/*Tela de Recuperação de Senha*/}
+        <Stack.Screen name='Recuperação' component={PasswordRecovery} options={{title: ''}}/>
+
+        {/*Tela de Perfil*/}
+        <Stack.Screen name='Perfil' component={ProfileScreen} options={{title: ''}}/>
+
+        {/*Tela de Histórico de chats*/}
+        <Stack.Screen name='Historico' component={HistoryScreen} options={{title: ''}}/>
       </Stack.Navigator>
     </NavigationContainer>
   )
