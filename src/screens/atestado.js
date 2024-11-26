@@ -14,6 +14,7 @@ const AtestadoGenerator = ({ navigation }) => {
   const [reason, setReason] = useState('');
   const [nascipaciente, setNasciPaciente ] = useState('');
   const [cpf, setCpf ] = useState('');
+  const [cid, setCid ] = useState('');
 
   const generateAtestado = async () => {
     if (!reason || !nomePaciente || !periodoAfastado) {
@@ -35,6 +36,7 @@ const AtestadoGenerator = ({ navigation }) => {
         <h3>Atestado Médico</h3>
 
         <p>Eu, Dr. ${nomeMedico}, CRM ${crm}, atesto que o(a) paciente:</p>
+        <p><strong>Cid:</strong> ${cid}</p>
 
         <p><strong>Nome:</strong> ${nomePaciente}</p>
         <p><strong>Data de Nascimento:</strong> ${nascipaciente}</p>
@@ -50,8 +52,8 @@ const AtestadoGenerator = ({ navigation }) => {
         <p>______________________________</p>
         <div>  
           <p style=" margin: 0px;">Assinatura do Médico</p>
-          <p style=" margin: 0px;">Nome do medico:<strong>${nomeMedico}</strong></p>
-          <p style=" margin: 0px;">CRM:<strong>${crm}</strong></p>
+          <p style=" margin: 0px;"><strong>Nome do medico:</strong> ${nomeMedico}</p>
+          <p style=" margin: 0px;"><strong>CRM:</strong> ${crm}</p>
         </div>
 
         <br/>
@@ -148,6 +150,18 @@ const AtestadoGenerator = ({ navigation }) => {
           keyboardType="numeric"
           placeholder="Insira o CRM do medico"   
         />
+
+          <Text style={styles.label}>Cid:</Text>
+          <TextInputMask
+            type={'custom'}
+            options={{
+              mask: 'A99'
+            }}
+            style={styles.input}
+            value={cid}
+            onChangeText={setCid}
+            placeholder="Insira o Cid"
+          />
 
         <Text style={styles.label}>Período de afastamento:</Text>
         <TextInput
