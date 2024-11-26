@@ -92,9 +92,9 @@ const HomeScreen = () => {
     const buttons = [
         { 
           id: '1', 
-          title: 'Rede Credenciada', 
-          icon: 'bookmarks', 
-          //onPress: () => navigation.navigate('RedeCredenciada') 
+          title: 'Histórico', 
+          icon: 'analytics-outline', 
+          onPress: () => navigation.navigate('Historico', { userId: user.userId, userRole }) 
         },
         { 
           id: '2', 
@@ -104,16 +104,11 @@ const HomeScreen = () => {
         },
         { 
           id: '3', 
-          title: 'Como emitir', 
+          title: 'Como Emitir', 
           icon: 'newspaper-outline', 
           onPress: () => {linkExt}
         },
-        { 
-          id: '4', 
-          title: 'Histórico', 
-          icon: 'analytics-outline', 
-          onPress: () => navigation.navigate('Historico', { userId: user.userId, userRole }) 
-        },
+       
       ];
       
       // Renderização do botão

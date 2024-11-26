@@ -127,13 +127,13 @@ const ProfileScreen = ({ navigation }) => {
                 <Text style={styles.value}>{auth.currentUser.email}</Text>
             </View>
             <View style={styles.userInfo}>
-                <Text style={styles.label}>
-                    {userData.type === 'medico' ? 'CRM' : 'Carteirinha SUS'}:
-                </Text>
-                <Text style={styles.value}>
-                    {userData.type === 'medico' ? userData.CRM : userData.carteirinhaSUS}
-                </Text>
-            </View>
+            <Text style={styles.label}>
+                {userData.type === 'medico' ? 'CRM' : 'Carteirinha SUS'}:
+                  </Text>
+                  <Text style={styles.value}>
+                      {userData.type === 'medico' ? userData.CRM : userData.cartaoSUS}
+                  </Text>
+              </View>
             <View style={styles.userInfo}>
                 <Text style={styles.label}>Telefone:</Text>
                 <Text style={styles.value}>{userData.celular}</Text>

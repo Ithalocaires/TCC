@@ -1,108 +1,138 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
-import { collection, query, where, onSnapshot, doc, getDocs, orderBy } from 'firebase/firestore';
-import { database } from "../../config/firebase";
+import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { database } from '../../config/firebase';
 import { useNavigation } from '@react-navigation/native';
-import { format, differenceInDays } from 'date-fns';
 
-const HistoryScreen = ({ route }) => {
-    const [history, setHistory] = useState([]);
+const HistoricoChats = ({ route }) => {
+    const { userId } = route.params; // ID do paciente
+    const [chats, setChats] = useState([]);
     const navigation = useNavigation();
-    const { userId, userRole } = route.params;
 
     useEffect(() => {
         const fetchChatHistory = async () => {
             try {
-                const chatsQuery = query(
-                    collection(database, 'chatSessions'),
-                    where(userRole === 'medico' ? 'medicoId' : 'pacienteId', '==', userId),
-                    where('status', '==', 'encerrada'),
-                    orderBy('endedAt', 'desc')
-                );
-    
-                const snapshot = await getDocs(chatsQuery);
-    
-                const fetchedHistory = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
-    
-                setHistory(fetchedHistory);
+                const chatRef = collection(database, 'closedChats');
+                const q = query(chatRef, where("pacienteId", "==", userId));
+                const querySnapshot = await getDocs(q);
+
+                const now = new Date();
+                const formattedChats = querySnapshot.docs.map((doc) => {
+                    const chatData = doc.data();
+                    const isAccessible = chatData.accessibleUntil.toDate() > now; // Verifica se ainda está no prazo
+                    const endedAt = chatData.endedAt.toDate();
+                    
+                    // Formatar a data no formato DD/MM/AA HH:mm
+                    const formattedDate = formatDate(endedAt);
+
+                    return {
+                        id: doc.id,
+                        nomeMedico: chatData.nomeMedico,
+                        endedAt: formattedDate, // A data já está formatada como string
+                        isAccessible,
+                    };
+                });
+
+                setChats(formattedChats);
             } catch (error) {
-                console.error("Erro ao buscar histórico:", error);
+                console.error("Erro ao buscar histórico de chats:", error);
             }
         };
-    
-        fetchChatHistory();
-    }, [userId, userRole]);
 
-    const handleSelectChat = (session) => {
-        const canAccessChat = differenceInDays(new Date(), session.createdAt) <= 7;
-        if (canAccessChat) {
-            navigation.navigate('Chat', {
-                sessionId: session.id,
-                name: session.medico?.nome,
-                userId,
-            });
+        fetchChatHistory();
+    }, [userId]);
+
+    const formatDate = (date) => {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Janeiro é 0
+        const year = String(date.getFullYear()).slice(-2); // Ano no formato AA
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
+    };
+
+    const handleAccessChat = (chat) => {
+        if (chat.isAccessible) {
+            // Navegar para a tela de histórico de mensagens
+            navigation.navigate('Historico de Mensagens', { sessionId: chat.id });
         } else {
-            alert('O histórico do chat só pode ser acessado por até 7 dias após a consulta.');
+            Alert.alert('Acesso Negado', 'O acesso ao histórico deste chat expirou.');
         }
     };
 
-    const renderItem = ({ item }) => (
-        <TouchableOpacity
-            style={styles.card}
-            onPress={() => handleSelectChat(item)}
-        >
-            <Text style={styles.text}>Data: {format(item.createdAt, 'dd/MM/yyyy')}</Text>
-            <Text style={styles.text}>Médico: {item.medico?.nome || 'Desconhecido'}</Text>
-            <Text style={styles.text}>CRM: {item.medico?.CRM || 'Não informado'}</Text>
-        </TouchableOpacity>
-    );
-
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Histórico de Consultas</Text>
+            <Text style={styles.title}>Histórico de Chats</Text>
             <FlatList
-                data={history}
+                data={chats}
                 keyExtractor={(item) => item.id}
-                renderItem={renderItem}
-                ListEmptyComponent={<Text style={styles.emptyText}>Nenhuma consulta encontrada.</Text>}
+                renderItem={({ item }) => (
+                    <View style={styles.chatItem}>
+                        <Text style={styles.chatInfo}>Médico: {item.nomeMedico}</Text>
+                        <Text style={styles.chatInfo}>Encerrado em: {item.endedAt}</Text> 
+                        <TouchableOpacity
+                            onPress={() => handleAccessChat(item)}
+                            style={[
+                                styles.accessButton,
+                                !item.isAccessible && styles.disabledButton,
+                            ]}
+                            disabled={!item.isAccessible}
+                        >
+                            <Text style={styles.accessButtonText}>
+                                {item.isAccessible ? 'Acessar Chat' : 'Acesso Expirado'}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
             />
         </View>
     );
 };
 
-export default HistoryScreen;
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'white',
-        padding: 10,
-    }, 
-    title: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 15,
-        textAlign: 'center',
-        color: '#53affa',
-    },
-    card: {
+        padding: 16,
         backgroundColor: '#fff',
-        padding: 15,
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 16,
+    },
+    chatItem: {
+        backgroundColor: '#fff',
         borderRadius: 8,
-        marginVertical: 8,
-        elevation: 3,
+        padding: 16,
+        marginBottom: 12,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+        borderWidth: 1,
+        borderColor: '#ccc'
     },
-    text: {
+    chatInfo: {
         fontSize: 16,
-        color: '#333',
+        marginBottom: 8,
     },
-    emptyText: {
+    accessButton: {
+        backgroundColor: '#53affa',
+        padding: 10,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    disabledButton: {
+        backgroundColor: '#ccc',
+    },
+    accessButtonText: {
+        color: '#fff',
         fontSize: 16,
-        textAlign: 'center',
-        color: '#666',
-        marginTop: 20,
+        fontWeight: 'bold',
     },
 });
+
+export default HistoricoChats;
+
+

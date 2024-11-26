@@ -60,12 +60,23 @@ const WaitRoom = ({ navigation, route }) => {
 
     const handleSelectPaciente = async (paciente) => {
         const pacienteRef = doc(database, 'waitRoom', paciente.id);
-        const chatRef = collection(database, 'chatSessions'); // Certifique-se de que este é o caminho correto.
+        const pacienteDocRef = doc(database, 'pacientes', paciente.id);
+        const chatRef = collection(database, 'chatSessions');
         const q = query(chatRef, where("pacienteId", "==", paciente.id), orderBy("createdAt", "desc"));
     
         try {
-            const chatDocs = await getDocs(q);
+            // Buscar os dados completos do paciente na coleção 'pacientes'
+            const pacienteDoc = await getDoc(pacienteDocRef);
+            if (!pacienteDoc.exists()) {
+                console.error("Dados do paciente não encontrados:", paciente.id);
+                Alert.alert("Erro", "Os dados do paciente não foram encontrados.");
+                return;
+            }
     
+            const pacienteData = pacienteDoc.data();
+    
+            // Buscar chats anteriores
+            const chatDocs = await getDocs(q);
             if (!chatDocs.empty) {
                 const previousChat = chatDocs.docs[0].data();
     
@@ -84,9 +95,13 @@ const WaitRoom = ({ navigation, route }) => {
     
                     navigation.navigate('Chat', {
                         sessionId: previousChat.sessionId,
-                        nome: paciente.nome,
-                        cartaoSus: paciente.cartaoSUS,
-                        obs: paciente.obs,
+                        nome: pacienteData.nome,
+                        cartaoSus: pacienteData.cartaoSUS,
+                        email: pacienteData.email,
+                        telefone: pacienteData.celular,
+                        dataNascimento: pacienteData.dataNascimento,
+                        cpf: pacienteData.cpf,
+                        rg: pacienteData.rg,
                         userRole: 'medico',
                         userId,
                     });
@@ -100,7 +115,7 @@ const WaitRoom = ({ navigation, route }) => {
                     sessionId: newChatRef.id,
                     pacienteId: paciente.id,
                     medicoId: userId,
-                    nomePaciente: paciente.nome,
+                    nomePaciente: pacienteData.nome,
                     status: 'ativo',
                     createdAt: new Date(),
                 });
@@ -112,18 +127,23 @@ const WaitRoom = ({ navigation, route }) => {
     
                 navigation.navigate('Chat', {
                     sessionId: newChatRef.id,
-                    nome: paciente.nome,
-                    cartaoSus: paciente.cartaoSUS,
-                    obs: paciente.obs,
+                    nome: pacienteData.nome,
+                    cartaoSus: pacienteData.cartaoSUS,
+                    email: pacienteData.email,
+                    telefone: pacienteData.celular,
+                    dataNascimento: pacienteData.dataNascimento,
+                    cpf: pacienteData.cpf,
+                    rg: pacienteData.rg,
                     userRole: 'medico',
                     userId,
                 });
             }
         } catch (error) {
             console.error("Erro ao selecionar paciente:", error);
+            Alert.alert("Erro", "Ocorreu um problema ao selecionar o paciente.");
         }
     };
-
+    
     const refreshPacientes = () => {
         fetchPacientes();
     };

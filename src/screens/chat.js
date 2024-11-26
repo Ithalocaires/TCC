@@ -1,6 +1,6 @@
 import { GiftedChat, Bubble, Send, InputToolbar } from 'react-native-gifted-chat';
 import { useCallback, useEffect, useState, useRef } from 'react';
-import { View, Alert, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Alert, TouchableOpacity, StyleSheet, Modal, Text, Button } from 'react-native';
 import { collection, addDoc, onSnapshot, query, orderBy, doc, getDoc, updateDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { database } from "../../config/firebase";
 import { useRoute, useNavigation } from "@react-navigation/native";
@@ -15,7 +15,8 @@ const ChatScreen = () => {
     const [userRole, setUserRole] = useState('medico');
     const [dadosMedico, setDadosMedico] = useState({});
     const [dadosPaciente, setDadosPaciente] = useState({});
-    const timeoutRef = useRef(null); 
+    const timeoutRef = useRef(null);
+    const [modalVisible, setModalVisible] = useState(false); 
 
       // Função para encerrar consulta automaticamente
       const encerrarConsultaAutomaticamente = async () => {
@@ -95,27 +96,45 @@ const ChatScreen = () => {
     }, [sessionId]);
 
     // Buscar informações do usuário
-    useEffect(() => {
-        const fetchUserDetails = async () => {
-            try {
-                const medicoDoc = await getDoc(doc(database, 'medicos', userId));
-                if (medicoDoc.exists()) {
-                    setUserRole('medico');
-                    setDadosMedico(medicoDoc.data());
-                } else {
-                    const pacienteDoc = await getDoc(doc(database, 'pacientes', userId));
-                    if (pacienteDoc.exists()) {
-                        setUserRole('paciente');
-                        setDadosPaciente(pacienteDoc.data());
+   useEffect(() => {
+    const fetchUserDetails = async () => {
+        try {
+            // Verifica se é um médico
+            const medicoDoc = await getDoc(doc(database, 'medicos', userId));
+            if (medicoDoc.exists()) {
+                setUserRole('medico');
+                setDadosMedico(medicoDoc.data());
+
+                // Busca os dados do paciente relacionado à sessão atual
+                if (sessionId) {
+                    const chatDoc = await getDoc(doc(database, 'chatSessions', sessionId));
+                    if (chatDoc.exists()) {
+                        const pacienteId = chatDoc.data().pacienteId;
+                        const pacienteDoc = await getDoc(doc(database, 'pacientes', pacienteId));
+                        if (pacienteDoc.exists()) {
+                            setDadosPaciente(pacienteDoc.data());
+                        } else {
+                            console.error("Dados do paciente não encontrados.");
+                        }
+                    } else {
+                        console.error("Sessão de chat não encontrada.");
                     }
                 }
-            } catch (error) {
-                console.error("Erro ao buscar dados do usuário:", error);
+            } else {
+                // Caso seja paciente
+                const pacienteDoc = await getDoc(doc(database, 'pacientes', userId));
+                if (pacienteDoc.exists()) {
+                    setUserRole('paciente');
+                    setDadosPaciente(pacienteDoc.data());
+                }
             }
-        };
+        } catch (error) {
+            console.error("Erro ao buscar dados do usuário:", error);
+        }
+    };
 
-        fetchUserDetails();
-    }, [userId]);
+    fetchUserDetails();
+}, [userId, sessionId]);
 
     // Buscar mensagens do chat
     useEffect(() => {
@@ -146,6 +165,22 @@ const ChatScreen = () => {
             if (timeoutRef.current) clearTimeout(timeoutRef.current); // Limpa o temporizador ao desmontar
         };
     }, [sessionId]);
+    
+    useEffect(() => {
+        const fetchUserName = async () => {
+            try {
+                const userDoc = await getDoc(doc(database, 'usuarios', userId));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    setUserName(userData.nome || 'Anônimo'); // Certifique-se de que o campo "nome" existe
+                }
+            } catch (error) {
+                console.error("Erro ao buscar o nome do usuário:", error);
+            }
+        };
+    
+        fetchUserName();
+    }, [userId]);
 
     // Enviar mensagem
     const sentMessage = useCallback((messages = []) => {
@@ -153,6 +188,7 @@ const ChatScreen = () => {
         setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
         // Atribuição dos valores dentro de uma mensagem
         const { _id, createdAt, text, user } = messages[0];
+        console.log("Mensagem enviada:", { _id, createdAt, text, user });
 
         addDoc(collection(database, `chatSessions/${sessionId}/messages`), {
             _id, // ID da mensagem
@@ -170,78 +206,97 @@ const ChatScreen = () => {
 
     // Encerrar consulta
     const encerrarConsulta = async () => {
-        Alert.alert(
-            "Encerrar Consulta",
-            "Tem certeza de que deseja encerrar a consulta? Essa ação não pode ser desfeita.",
-            [
-                {
-                    text: "Cancelar",
-                    style: "cancel",
-                },
-                {
-                    text: "Encerrar",
-                    style: "destructive",
-                    onPress: async () => {
-                        try {
-                            const sessionRef = doc(database, 'chatSessions', sessionId);
-                            const archiveRef = collection(database, 'closedChats');
-                            const sessionSnap = await getDoc(sessionRef);
+    Alert.alert(
+        "Encerrar Consulta",
+        "Tem certeza de que deseja encerrar a consulta? Essa ação não pode ser desfeita.",
+        [
+            {
+                text: "Cancelar",
+                style: "cancel",
+            },
+            {
+                text: "Encerrar",
+                style: "destructive",
+                onPress: async () => {
+                    try {
+                        const sessionRef = doc(database, 'chatSessions', sessionId);
+                        const archiveRef = collection(database, 'closedChats');
+                        const sessionSnap = await getDoc(sessionRef);
     
-                            if (sessionSnap.exists()) {
-                                const sessionData = sessionSnap.data();
+                        if (sessionSnap.exists()) {
+                            const sessionData = sessionSnap.data();
     
-                                // Verificar se medicoId está presente
-                                if (!sessionData.medicoId) {
-                                    console.error("medicoId está ausente no documento da sessão.");
-                                    Alert.alert("Erro", "Dados do médico estão incompletos. Não é possível encerrar a consulta.");
-                                    return;
-                                }
-    
-                                const medicoRef = doc(database, 'medicos', sessionData.medicoId);
-                                const medicoSnap = await getDoc(medicoRef);
-    
-                                let nomeMedico = "Desconhecido";
-                                if (medicoSnap.exists()) {
-                                    nomeMedico = medicoSnap.data().nome || "Desconhecido"; // Campo 'nome' do médico
-                                }
-    
-                                // Atualiza o status do chat para "encerrada" antes de arquivar
-                                await updateDoc(sessionRef, { status: 'encerrada' });
-    
-                                // Adiciona o chat encerrado na coleção 'closedChats'
-                                const closedChatRef = doc(archiveRef, sessionId);
-                                await setDoc(closedChatRef, {
-                                    ...sessionData,
-                                    nomeMedico, // Salva o nome correto do médico
-                                    status: 'encerrada',
-                                    endedAt: new Date(),
-                                    accessibleUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias
-                                });
-    
-                                // Remove o chat ativo
-                                await deleteDoc(sessionRef);
-                            } else {
-                                console.error("Sessão não encontrada para encerrar.");
-                                Alert.alert("Erro", "Sessão não encontrada.");
+                            // Verificar se medicoId está presente
+                            if (!sessionData.medicoId) {
+                                console.error("medicoId está ausente no documento da sessão.");
+                                Alert.alert("Erro", "Dados do médico estão incompletos. Não é possível encerrar a consulta.");
                                 return;
                             }
     
-                            // Redirecionar o médico para a tela Home
-                            navigation.reset({
-                                index: 0,
-                                routes: [{ name: 'Home' }],
+                            const medicoRef = doc(database, 'medicos', sessionData.medicoId);
+                            const medicoSnap = await getDoc(medicoRef);
+    
+                            // Garantir que crmMedico tenha um valor válido
+                            const crmMedico = medicoSnap.exists() ? medicoSnap.data().crm || 'N/A' : 'N/A';
+    
+                            let nomeMedico = "Desconhecido";
+                            if (medicoSnap.exists()) {
+                                nomeMedico = medicoSnap.data().nome || "Desconhecido"; // Campo 'nome' do médico
+                            }
+    
+                            // Atualiza o status do chat para "encerrada" antes de arquivar
+                            await updateDoc(sessionRef, { status: 'encerrada' });
+    
+                            // Adiciona o chat encerrado na coleção 'closedChats'
+                            const closedChatRef = doc(archiveRef, sessionId);
+                            await setDoc(closedChatRef, {
+                                ...sessionData,
+                                nomeMedico,  // Salva o nome do médico
+                                crmMedico,  // Salva o CRM do médico
+                                status: 'encerrada',  // Altera o status da consulta como encerrada
+                                endedAt: new Date(),  // Define a data de encerramento da consulta
+                                accessibleUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Deixa a consulta disponível por 7 dias.
                             });
-                        } catch (error) {
-                            console.error("Erro ao encerrar consulta:", error);
+    
+                            // Remove o chat ativo
+                            await deleteDoc(sessionRef);
+                        } else {
+                            console.error("Sessão não encontrada para encerrar.");
+                            Alert.alert("Erro", "Sessão não encontrada.");
+                            return;
                         }
-                    },
+    
+                        // Redirecionar o médico para a tela Home
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'Home' }],
+                        });
+                    } catch (error) {
+                        console.error("Erro ao encerrar consulta:", error);
+                    }
                 },
-            ],
-            { cancelable: true }
-        );
-    };
+            },
+        ],
+        { cancelable: true }
+    );
+};
+
     
-    
+    useEffect(() => {
+        if (userRole === 'medico') { // Verifica se o usuário é médico
+            navigation.setOptions({
+                headerRight: () => (
+                    <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.headerButton}>
+                        <Icon name="person-circle-outline" size={30} color="#53affa" />
+                    </TouchableOpacity>
+                ),
+            });
+        } else {
+            navigation.setOptions({
+                headerRight: () => null, // Remove o botão para pacientes
+            });
+        }
+    }, [navigation, userRole]);
 
     useEffect(() => {
         const docRef = doc(database, 'chatSessions', sessionId);
@@ -282,6 +337,18 @@ const ChatScreen = () => {
 
         return () => unsubscribe();
     }, [sessionId, navigation, isInitializing]);
+
+    const formatDate = (timestamp) => {
+        if (timestamp?.seconds) {
+            const date = new Date(timestamp.seconds * 1000); // Converte segundos para milissegundos
+            return date.toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+            });
+        }
+        return "N/A";
+    };
 
     const renderBubble = (props) => (
         <Bubble
@@ -329,6 +396,36 @@ const ChatScreen = () => {
 
     return (
         <View style={styles.container}>
+        {/* Modal para exibir os dados do paciente */}
+        <Modal
+            visible={modalVisible}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={() => setModalVisible(false)}
+        >
+            <View style={styles.modalContainer}>
+                <View style={styles.modalContent}>
+                    <Text style={styles.modalTitle}>Dados do Paciente</Text>
+
+                    {dadosPaciente ? (
+                        <>
+                            <Text>Nome: {dadosPaciente.nome || "N/A"}</Text>
+                            <Text>Email: {dadosPaciente.email || "N/A"}</Text>
+                            <Text>Telefone: {dadosPaciente.celular || "N/A"}</Text>
+                            <Text>Carteirinha SUS: {dadosPaciente.cartaoSUS || "N/A"}</Text>
+                            <Text>CPF: {dadosPaciente.cpf || "N/A"}</Text>
+                            <Text>Data de Nascimento: {formatDate(dadosPaciente.dataNascimento)}</Text>
+                            <Text>RG: {dadosPaciente.rg || "N/A"}</Text>
+                        </>
+                    ) : (
+                        <Text>Carregando dados do paciente...</Text>
+                    )}
+
+                    <Button title="Fechar" onPress={() => setModalVisible(false)} />
+                </View>
+            </View>
+        </Modal>
+
             <GiftedChat
                 messages={messages}
                 onSend={(messages) => sentMessage(messages)}
@@ -338,7 +435,7 @@ const ChatScreen = () => {
                 renderInputToolbar={(props) => renderInputToolbar(props)}
                 placeholder="Digite uma mensagem..."
                 alwaysShowSend={true}
-                showUserAvatar={false}
+                renderAvatar={() => null}
             />
         </View>
     );
@@ -369,6 +466,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    headerButton: {
+        marginRight: 15,
+    },
     sendButton: {
         padding: 10,
         borderRadius: 50,
@@ -376,6 +476,38 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 5,
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        width: '80%',
+        backgroundColor: '#FFF',
+        borderRadius: 10,
+        padding: 20,
+        alignItems: 'center',
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    modalText: {
+        fontSize: 16,
+        marginBottom: 5,
+    },
+    closeButton: {
+        marginTop: 20,
+        padding: 10,
+        borderRadius: 5,
+        backgroundColor: '#53affa',
+    },
+    closeButtonText: {
+        color: '#FFF',
+        fontWeight: 'bold',
     },
 });
 

@@ -32,7 +32,7 @@ const PasswordRecovery = ({navigation}) => {
     };
 
     return(
-        <View style={customStyles.container}>
+        <View style={customStyles.loginContainer}>
             <Text style={customStyles.title}>Recuperação de Senha</Text>
             <TextInput
                 style={customStyles.input}
