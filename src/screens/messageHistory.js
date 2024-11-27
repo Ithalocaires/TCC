@@ -1,35 +1,76 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, ScrollView } from 'react-native';
-import { collection, query, orderBy, getDocs } from 'firebase/firestore';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { collection, query, orderBy, getDocs, doc, getDoc } from 'firebase/firestore';
 import { database } from '../../config/firebase';
 
 const MessageHistory = ({ route }) => {
-    const { sessionId, medicoId } = route.params; // Recebe também o medicoId para identificar quem é o médico
+    const { sessionId, medicoId } = route.params; // Recebe sessionId e medicoId da rota
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [userNames, setUserNames] = useState({}); // Cache para nomes de usuários
 
+    // Função para buscar o nome do usuário pelo ID em duas coleções
+    const fetchUserName = async (userId) => {
+        // Evita consultas repetidas ao Firestore
+        if (userNames[userId]) {
+            return userNames[userId];
+        }
+
+        try {
+            // Primeiro tenta buscar na coleção "pacientes"
+            let userDoc = await getDoc(doc(database, 'pacientes', userId));
+            if (userDoc.exists()) {
+                const userName = userDoc.data().nome || 'Sem nome';
+                setUserNames((prev) => ({ ...prev, [userId]: userName })); // Armazena no cache
+                return userName;
+            }
+
+            // Caso não encontre, tenta na coleção "medicos"
+            userDoc = await getDoc(doc(database, 'medicos', userId));
+            if (userDoc.exists()) {
+                const userName = userDoc.data().nome || 'Sem nome';
+                setUserNames((prev) => ({ ...prev, [userId]: userName })); // Armazena no cache
+                return userName;
+            }
+
+            // Se não for econtrado o nome em nenhuma coleção de usuário irá retornar como "Sem nome"
+            console.warn(`Usuário com ID ${userId} não encontrado em nenhuma coleção.`);
+            return 'Sem nome';
+        } catch (error) {
+            Alert.alert('Erro', 'Erro ao buscar o Id do usuário.');
+            return 'Erro ao buscar';
+        }
+    };
+
+    // Busca as mensagens do chat selecionado pelo paciente
     useEffect(() => {
         const fetchMessages = async () => {
             try {
-                const messagesRef = collection(database, 'chatSessions', sessionId, 'messages'); // Caminho atualizado
-                const q = query(messagesRef, orderBy('createdAt', 'asc')); // Ordena as mensagens por data
-    
+                // As mensagens ficam armazendas dentro da coleção chatSessions
+                const messagesRef = collection(database, 'chatSessions', sessionId, 'messages');
+                // Ordena pela mais antiga até a mais recente
+                const q = query(messagesRef, orderBy('createdAt', 'asc'));
                 const querySnapshot = await getDocs(q);
-    
-                const loadedMessages = querySnapshot.docs.map((doc) => {
-                    const message = doc.data();
-                    return {
-                        id: doc.id, // ID único da mensagem
-                        text: message.text, // Conteúdo da mensagem
-                        createdAt: message.createdAt.toDate(), // Timestamp convertido para Date
-                        user: {
-                            _id: message.user._id, // ID do usuário que enviou a mensagem
-                            // Se o usuário for o médico, mostra "Médico", caso contrário "Você" para o paciente
-                            name: message.user._id === medicoId ? "Médico" : "Você", 
-                        },
-                    };
-                });
-    
+
+                // Processa mensagens e busca nomes dos usuários
+                const loadedMessages = await Promise.all(
+                    querySnapshot.docs.map(async (doc) => {
+                        const message = doc.data();
+                        // Busca nome do usuário a partir do Id (Estava dando problema pesquisar diretamente pelo nome)
+                        const userName = await fetchUserName(message.user._id); 
+
+                        return {
+                            id: doc.id,
+                            text: message.text,
+                            createdAt: message.createdAt.toDate(),
+                            user: {
+                                _id: message.user._id,
+                                name: message.user._id === medicoId ? 'Médico' : userName, // Nome do médico ou do paciente
+                            },
+                        };
+                    })
+                );
+
                 setMessages(loadedMessages);
             } catch (error) {
                 console.error('Erro ao buscar histórico de mensagens:', error);
@@ -37,10 +78,10 @@ const MessageHistory = ({ route }) => {
                 setLoading(false);
             }
         };
-    
+
         fetchMessages();
-    }, [sessionId, medicoId]); // Inclui o medicoId para identificar se é o médico ou paciente
-    
+    }, [sessionId, medicoId]); // Dependências do efeito
+
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
@@ -48,7 +89,8 @@ const MessageHistory = ({ route }) => {
             </View>
         );
     }
-    
+
+    // Rendereização da Lista das mensagens
     return (
         <View style={styles.container}>
             <FlatList
@@ -90,15 +132,18 @@ const styles = StyleSheet.create({
     messageUser: {
         fontWeight: 'bold',
         fontSize: 14,
+        color: '#000',
     },
     messageText: {
         fontSize: 16,
         marginVertical: 5,
+        color: '#000'
     },
     messageTimestamp: {
         fontSize: 12,
         color: '#aaa',
         textAlign: 'right',
+
     },
 });
 

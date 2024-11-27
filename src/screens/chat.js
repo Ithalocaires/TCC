@@ -1,5 +1,5 @@
 import { GiftedChat, Bubble, Send, InputToolbar } from 'react-native-gifted-chat';
-import { useCallback, useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useState, useRef, useLayoutEffect } from 'react';
 import { View, Alert, TouchableOpacity, StyleSheet, Modal, Text, Button } from 'react-native';
 import { collection, addDoc, onSnapshot, query, orderBy, doc, getDoc, updateDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { database } from "../../config/firebase";
@@ -165,22 +165,6 @@ const ChatScreen = () => {
             if (timeoutRef.current) clearTimeout(timeoutRef.current); // Limpa o temporizador ao desmontar
         };
     }, [sessionId]);
-    
-    useEffect(() => {
-        const fetchUserName = async () => {
-            try {
-                const userDoc = await getDoc(doc(database, 'usuarios', userId));
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    setUserName(userData.nome || 'Anônimo'); // Certifique-se de que o campo "nome" existe
-                }
-            } catch (error) {
-                console.error("Erro ao buscar o nome do usuário:", error);
-            }
-        };
-    
-        fetchUserName();
-    }, [userId]);
 
     // Enviar mensagem
     const sentMessage = useCallback((messages = []) => {
@@ -188,21 +172,21 @@ const ChatScreen = () => {
         setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
         // Atribuição dos valores dentro de uma mensagem
         const { _id, createdAt, text, user } = messages[0];
-        console.log("Mensagem enviada:", { _id, createdAt, text, user });
-
+        const userName = name || 'Anônimo';
         addDoc(collection(database, `chatSessions/${sessionId}/messages`), {
             _id, // ID da mensagem
             createdAt, // Data de Criação
             text, // Texto de mensagem
             user: { // Busca o usuário que enviou a mensagem
                 _id: user._id,  // ID do usuário
-                name: user.name,  // Nome do usuário
+                name: userName ,  // Nome do usuário
             },
+            
             //Tratamento de exceçõs para caso o App apresentar problmas
-        }).catch((error) => {
+        }).catch((error) =>{
             console.error("Erro ao enviar mensagem: ", error);
         });
-    }, [sessionId]);
+    }, [sessionId, name]);
 
     // Encerrar consulta
     const encerrarConsulta = async () => {
@@ -228,7 +212,7 @@ const ChatScreen = () => {
     
                             // Verificar se medicoId está presente
                             if (!sessionData.medicoId) {
-                                console.error("medicoId está ausente no documento da sessão.");
+
                                 Alert.alert("Erro", "Dados do médico estão incompletos. Não é possível encerrar a consulta.");
                                 return;
                             }
@@ -354,12 +338,24 @@ const ChatScreen = () => {
         <Bubble
             {...props}
             wrapperStyle={{
-                right: { backgroundColor: '#53affa' },
-                left: { backgroundColor: '#003770' },
+                right: {
+                    backgroundColor: '#53affa',
+                    borderRadius: 10,
+                    marginBottom: 5,
+                    alignSelf: 'flex-end',  // Garante que a bolha da direita esteja alinhada à direita
+                    maxWidth: '80%', // Limita a largura da bolha
+                },
+                left: {
+                    backgroundColor: '#003770',
+                    borderRadius: 10,
+                    marginBottom: 5,
+                    alignSelf: 'flex-start',  // Garante que a bolha da esquerda esteja alinhada à esquerda
+                    maxWidth: '80%', // Limita a largura da bolha
+                },
             }}
             textStyle={{
-                right: { color: '#fff' },
-                left: { color: '#fff' },
+                right: { color: '#fff', fontSize: 14 }, // Ajuste do texto da bolha da direita
+                left: { color: '#fff', fontSize: 14 },  // Ajuste do texto da bolha da esquerda
             }}
         />
     );
@@ -372,6 +368,7 @@ const ChatScreen = () => {
         </Send>
     );
 
+    // Props do Gifted chat permitindo alterar a barra de input
     const renderInputToolbar = (props) => (
         <InputToolbar
             {...props}
@@ -394,6 +391,15 @@ const ChatScreen = () => {
         />
     );
 
+    // Remover o botão de voltar no React Navigation
+    useLayoutEffect(() => {
+        navigation.setOptions({
+          headerLeft: () => null, 
+        });
+      }, [navigation]);
+
+
+    // Renderização do front end
     return (
         <View style={styles.container}>
         {/* Modal para exibir os dados do paciente */}
@@ -409,33 +415,36 @@ const ChatScreen = () => {
 
                     {dadosPaciente ? (
                         <>
-                            <Text>Nome: {dadosPaciente.nome || "N/A"}</Text>
-                            <Text>Email: {dadosPaciente.email || "N/A"}</Text>
-                            <Text>Telefone: {dadosPaciente.celular || "N/A"}</Text>
-                            <Text>Carteirinha SUS: {dadosPaciente.cartaoSUS || "N/A"}</Text>
-                            <Text>CPF: {dadosPaciente.cpf || "N/A"}</Text>
-                            <Text>Data de Nascimento: {formatDate(dadosPaciente.dataNascimento)}</Text>
-                            <Text>RG: {dadosPaciente.rg || "N/A"}</Text>
+                            <Text style={styles.modalText}>Nome: {dadosPaciente.nome || "N/A"}</Text>
+                            <Text style={styles.modalText}>Email: {dadosPaciente.email || "N/A"}</Text>
+                            <Text style={styles.modalText}>Telefone: {dadosPaciente.celular || "N/A"}</Text>
+                            <Text style={styles.modalText}>Carteirinha SUS: {dadosPaciente.cartaoSUS || "N/A"}</Text>
+                            <Text style={styles.modalText}>CPF: {dadosPaciente.cpf || "N/A"}</Text>
+                            <Text style={styles.modalText}>Data de Nascimento: {formatDate(dadosPaciente.dataNascimento)}</Text>
+                            <Text style={styles.modalText}>RG: {dadosPaciente.rg || "N/A"}</Text>
                         </>
                     ) : (
                         <Text>Carregando dados do paciente...</Text>
                     )}
 
-                    <Button title="Fechar" onPress={() => setModalVisible(false)} />
+                    <TouchableOpacity style={styles.closeButton}  onPress={() => setModalVisible(false)} >
+                        <Text style={styles.closeButtonText}>Fechar</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         </Modal>
-
+            {/* Utilização do componente importado Gifted chat */}
             <GiftedChat
                 messages={messages}
                 onSend={(messages) => sentMessage(messages)}
-                user={{ _id: userId || 'anon', name: name || 'Anônimo' }}
+                user={{ _id: userId || 'anon', name: name || 'Anônimo' }} 
                 renderBubble={renderBubble}
                 renderSend={renderSend}
                 renderInputToolbar={(props) => renderInputToolbar(props)}
                 placeholder="Digite uma mensagem..."
                 alwaysShowSend={true}
                 renderAvatar={() => null}
+
             />
         </View>
     );
@@ -489,25 +498,33 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 20,
         alignItems: 'center',
+        color: '#000',
     },
     modalTitle: {
         fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 10,
+        color: '#53affa',
     },
     modalText: {
-        fontSize: 16,
+        fontSize: 14,
         marginBottom: 5,
+        color: '#000',
+        marginVertical: '2%',
+        textAlign: 'justify',  // Justifica o texto
+        lineHeight: 20, // Ajusta o espaçamento entre as linhas
     },
     closeButton: {
-        marginTop: 20,
+        backgroundColor: '#007BFF',
         padding: 10,
-        borderRadius: 5,
-        backgroundColor: '#53affa',
+        borderRadius: 8,
+        width: '60%',
+        alignItems: 'center',
+        marginVertical: 10,
     },
     closeButtonText: {
-        color: '#FFF',
-        fontWeight: 'bold',
+        color: '#fff',
+        fontSize: 16,
     },
 });
 

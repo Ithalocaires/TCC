@@ -9,6 +9,7 @@ const PasswordRecovery = ({navigation}) => {
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
 
+    // Função para enviar o e-mail para o usuário fazer a troca de senha
     const handlePasswordReset = async () => {
         if (!email) {
             Alert.alert('Erro', 'Por favor, insira seu e-mail.');

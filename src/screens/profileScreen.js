@@ -19,25 +19,30 @@ const ProfileScreen = ({ navigation }) => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
-  const [email, setEmail] = useState(auth.currentUser?.email || ''); // Pega o email do usuário autenticado
+  const [email, setEmail] = useState(auth.currentUser?.email || '');
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState(null);
 
+  //Função para buscar os dados do usuário que está autenticado
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const currentUser = auth.currentUser;
         if (currentUser) {
+          // Começa fazendo a verificação do usuário, verificando se ele é um médico
           const userRef = doc(database, 'medicos', currentUser.uid);
+          // O await getDoc significa que o App irá esperar uma resposta da busca anterior para prosseguir
           const userSnap = await getDoc(userRef);
-
+          // Se o usuário existir na coleção médicos o userData será setado como médico
           if (userSnap.exists()) {
             setUserData({ ...userSnap.data(), type: 'medico' });
           } else {
             // Verifica se o usuário é paciente
             const patientRef = doc(database, 'pacientes', currentUser.uid);
+            // O await getDoc significa que o App irá esperar uma resposta da busca anterior para prosseguir
             const patientSnap = await getDoc(patientRef);
 
+            // Se o usuário existir na coleção pacientes o userData será setado como paciente
             if (patientSnap.exists()) {
               setUserData({ ...patientSnap.data(), type: 'paciente' });
             } else {
@@ -69,12 +74,12 @@ const ProfileScreen = ({ navigation }) => {
       Alert.alert('Erro', 'Preencha todos os campos.');
       return;
     }
-
+    // Verifica se a nova senha vate com a senha de confirmação
     if (newPassword !== confirmNewPassword) {
       Alert.alert('Erro', 'A nova senha e a confirmação não coincidem.');
       return;
     }
-
+    // Caso a senha atual for preenchida corretamente o App fará uma requisição ao servidor para alterar a senha do usuário
     try {
       const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
       await reauthenticateWithCredential(auth.currentUser, credential);
@@ -89,6 +94,7 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
  
+  // Função que cuida do lougou do usuário
   const handleLogout = async () => {
     try {
         await signOut(auth);
@@ -102,6 +108,8 @@ const ProfileScreen = ({ navigation }) => {
     }
 };
 
+// Renderização do Front end
+// O componente KeyboardAbvoidingView serve para o teclado do celular não tapar os elementos da tela
   return (
     <KeyboardAvoidingView
     style={{ flex: 1 }}
@@ -148,6 +156,7 @@ const ProfileScreen = ({ navigation }) => {
                 placeholder="Senha atual"
                 secureTextEntry
                 value={currentPassword}
+                placeholderTextColor="#000" 
                 onChangeText={setCurrentPassword}
                 />
                 <TextInput
@@ -155,6 +164,7 @@ const ProfileScreen = ({ navigation }) => {
                 placeholder="Nova senha"
                 secureTextEntry
                 value={newPassword}
+                placeholderTextColor="#000" 
                 onChangeText={setNewPassword}
                 />
                 <TextInput
@@ -162,6 +172,7 @@ const ProfileScreen = ({ navigation }) => {
                 placeholder="Confirmar nova senha"
                 secureTextEntry
                 value={confirmNewPassword}
+                placeholderTextColor="#000" 
                 onChangeText={setConfirmNewPassword}
                 />
                 <TouchableOpacity style={styles.button} onPress={handleChangePassword}>
@@ -218,6 +229,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    color:'#53affa',
   },
   input: {
     borderWidth: 1,
@@ -225,6 +237,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     marginBottom: 10,
+    color:'#000',
   },
   button: {
     backgroundColor: '#007BFF',

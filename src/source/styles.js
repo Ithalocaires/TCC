@@ -244,6 +244,7 @@ export const customStyles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
+        flex: 0.3,
     },
     Homebutton: {
         width: '45%',

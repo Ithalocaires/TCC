@@ -58,6 +58,7 @@ const WaitRoom = ({ navigation, route }) => {
         }
     }, [userRole, userId]);
 
+    // Função que é executada quando o médico seleciona um paciente da Lista
     const handleSelectPaciente = async (paciente) => {
         const pacienteRef = doc(database, 'waitRoom', paciente.id);
         const pacienteDocRef = doc(database, 'pacientes', paciente.id);
@@ -72,14 +73,15 @@ const WaitRoom = ({ navigation, route }) => {
                 Alert.alert("Erro", "Os dados do paciente não foram encontrados.");
                 return;
             }
-    
+            
+            // Iguala a constante pacienteData com os dados que foram recebidos na busca no banco de dados
             const pacienteData = pacienteDoc.data();
     
             // Buscar chats anteriores
             const chatDocs = await getDocs(q);
             if (!chatDocs.empty) {
                 const previousChat = chatDocs.docs[0].data();
-    
+                
                 if (previousChat.status === 'encerrada') {
                     // Reativar chat encerrado
                     await updateDoc(doc(chatRef, previousChat.sessionId), {
@@ -87,12 +89,12 @@ const WaitRoom = ({ navigation, route }) => {
                         reactivatedAt: new Date(),
                         medicoId: userId, // Incluindo medicoId na reativação
                     });
-    
+                    // Atualiza o status do chat para ativo
                     await updateDoc(pacienteRef, {
                         chatActive: true,
                         sessionId: previousChat.sessionId,
                     });
-    
+                    // Navega ao chat levando todas informações abaixo para serem usadas
                     navigation.navigate('Chat', {
                         sessionId: previousChat.sessionId,
                         nome: pacienteData.nome,
@@ -119,12 +121,12 @@ const WaitRoom = ({ navigation, route }) => {
                     status: 'ativo',
                     createdAt: new Date(),
                 });
-    
+                // Atualiza o status do chat para ativo e cria um ID para a sessão
                 await updateDoc(pacienteRef, {
                     chatActive: true,
                     sessionId: newChatRef.id,
                 });
-    
+                // Navega ao chat levando todas informações abaixo para serem usadas
                 navigation.navigate('Chat', {
                     sessionId: newChatRef.id,
                     nome: pacienteData.nome,
@@ -148,10 +150,11 @@ const WaitRoom = ({ navigation, route }) => {
         fetchPacientes();
     };
 
+    // O Loading aparece apenas para o paciente enquanto espera um médico atendê-lo
     if (loading) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" color="#0000ff" />
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor:'#fff' }}>
+                <ActivityIndicator size="large" color="#0071CF" />
                 {userRole === 'paciente' && <Text>Aguardando atendimento...</Text>}
             </View>
         );

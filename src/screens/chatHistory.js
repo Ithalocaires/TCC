@@ -5,17 +5,20 @@ import { database } from '../../config/firebase';
 import { useNavigation } from '@react-navigation/native';
 
 const HistoricoChats = ({ route }) => {
-    const { userId } = route.params; // ID do paciente
+    const { userId } = route.params; // O userId recebido aqui é o Id do paciente
     const [chats, setChats] = useState([]);
     const navigation = useNavigation();
 
+    // Busca os chats que tem o ID do usuário registrado
     useEffect(() => {
         const fetchChatHistory = async () => {
             try {
+                // Na coleção do banco closedChats o App faz a busca do Id do paciente
                 const chatRef = collection(database, 'closedChats');
                 const q = query(chatRef, where("pacienteId", "==", userId));
                 const querySnapshot = await getDocs(q);
 
+                // Faz a verificação se o chat está dentro do prazo de 7 dias para ficar assecível ao usuário
                 const now = new Date();
                 const formattedChats = querySnapshot.docs.map((doc) => {
                     const chatData = doc.data();
@@ -25,6 +28,7 @@ const HistoricoChats = ({ route }) => {
                     // Formatar a data no formato DD/MM/AA HH:mm
                     const formattedDate = formatDate(endedAt);
 
+                    // Retorna as informações necessárias ao Paciente
                     return {
                         id: doc.id,
                         nomeMedico: chatData.nomeMedico,
@@ -35,13 +39,14 @@ const HistoricoChats = ({ route }) => {
 
                 setChats(formattedChats);
             } catch (error) {
-                console.error("Erro ao buscar histórico de chats:", error);
+                Alert.alert('Erro', 'Erro ao buscar o histórico de chats.');
             }
         };
 
         fetchChatHistory();
     }, [userId]);
 
+    // Formata a data Obtida no banco de dados para o formato que estamos acostumados no Brasil
     const formatDate = (date) => {
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0'); // Janeiro é 0
@@ -57,6 +62,7 @@ const HistoricoChats = ({ route }) => {
             // Navegar para a tela de histórico de mensagens
             navigation.navigate('Historico de Mensagens', { sessionId: chat.id });
         } else {
+            // Exibe um alerta caso o histórico tenha expirado
             Alert.alert('Acesso Negado', 'O acesso ao histórico deste chat expirou.');
         }
     };
@@ -111,11 +117,12 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 2,
         borderWidth: 1,
-        borderColor: '#ccc'
+        borderColor: '#ccc',
     },
     chatInfo: {
         fontSize: 16,
         marginBottom: 8,
+        color: '#000',
     },
     accessButton: {
         backgroundColor: '#53affa',
