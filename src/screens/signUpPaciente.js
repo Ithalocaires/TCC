@@ -48,15 +48,17 @@ const onChangeDate = (event, selectedDate) => {
 
   //Função que cuida do registro do usuário
   const handleRegister = () => {
+    // Verifica se todos os campos foram preenchidos
     if (!nome || !email || !cartaoSUS || !rg || !cpf || !celular || !senha) {
       alert('Por favor, preencha todos os campos.');
       return;
     }
+    // Faz a verificação se a senha tem menos de 6 caracteres, se tiver menos informar ao usuário
     if (senha.length < 6) {
       alert('A senha deve ter pelo menos 6 caracteres.');
       return;
     }
-    // Cria um usuário no banco de dados
+    // Método do firebase responsável por fazer o cadastro do médico, sendo os métodos para login o email e senha
     createUserWithEmailAndPassword(auth, email, senha)
       .then((userCredential) => {
         const userId = userCredential.user.uid;
@@ -70,10 +72,11 @@ const onChangeDate = (event, selectedDate) => {
           rg,
           cpf,
           celular,
-          // Retorna uma alert positivo se o paciente for cadastrado com sucessop
         }).then(() => {
+          // Retorna uma alert positivo se o paciente for cadastrado com sucesso
           console.log('Paciente cadastrado com sucesso!');
           alert('Paciente cadastrado com sucesso!');
+          // Retorna o usuário a página Login
           navigation.replace('Login2');
         }).catch((error) => {
           console.error('Erro ao cadastrar Paciente:', error);
@@ -98,6 +101,8 @@ const onChangeDate = (event, selectedDate) => {
       });
   };
 
+  // Renderização do Front end
+  // O componente KeyboardAbvoidingView serve para o teclado do celular não tapar os elementos da tela
   return (
     <KeyboardAvoidingView
     style={{ flex: 1 }}

@@ -16,6 +16,8 @@ import { User } from 'firebase/auth';
 import PasswordRecovery from './src/screens/passwordRecovery';
 import ProfileScreen from './src/screens/profileScreen';
 import HistoryScreen from './src/screens/chatHistory';
+import MessageHistory from './src/screens/messageHistory';
+
 
 
 
@@ -97,6 +99,9 @@ if (loading) {
 
         {/*Tela de Histórico de chats*/}
         <Stack.Screen name='Historico' component={HistoryScreen} options={{title: ''}}/>
+
+        {/*Tela de Histórico de Mesagens*/}
+        <Stack.Screen name='Historico de Mensagens' component={MessageHistory} options={{title: ''}}/>
       </Stack.Navigator>
     </NavigationContainer>
   )

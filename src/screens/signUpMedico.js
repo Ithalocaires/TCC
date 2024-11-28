@@ -29,6 +29,7 @@ const SignUpMedico = () => {
   const [senha, setSenha] = useState('');
   const navigation = useNavigation();
 
+  // Função que permite o funcionamento do componente datatimepicker
   const onChangeDate = (event, selectedDate) => {
     if (event.type === 'set') {
       const currentDate = selectedDate || dataNascimento;
@@ -37,6 +38,7 @@ const SignUpMedico = () => {
     setShowDatePicker(false);
   };
 
+  // Formata a entrada da Data para o estilo que estamos acostumados no Brasil
   const formatDate = (date) => {
     return new Intl.DateTimeFormat('pt-BR', {
       day: '2-digit',
@@ -45,19 +47,26 @@ const SignUpMedico = () => {
     }).format(date);
   };
 
+  // Função responsável por fazer o registro do médico no Banco de dados
   const handleRegister = () => {
+    // Verifica se todos os campos foram preenchidos
     if (!nome || !email || !CRM || !rg || !cpf || !celular || !senha) {
       alert('Por favor, preencha todos os campos.');
       return;
     }
+    // Faz a verificação se a senha tem menos de 6 caracteres, se tiver menos informar ao usuário
     if (senha.length < 6) {
       alert('A senha deve ter pelo menos 6 caracteres.');
       return;
     }
+    // Método do firebase responsável por fazer o cadastro do médico, sendo os métodos para login o email e senha
     createUserWithEmailAndPassword(auth, email, senha)
+      // Cadastra todos os campos preenchidos pelo usuário
       .then((userCredential) => {
         const userId = userCredential.user.uid;
+        // Seleciona a coleção "medicos"
         setDoc(doc(database, 'medicos', userId), {
+          // Armazena os dados cadastrados
           nome,
           email,
           CRM,
@@ -66,9 +75,13 @@ const SignUpMedico = () => {
           cpf,
           celular,
         }).then(() => {
-          console.log('Médico cadastrado com sucesso!');
+          // Retorna uma alert positivo se o paciente for cadastrado com sucesso
+          console.log('Medico cadastrado com sucesso!');
+          alert('Medico cadastrado com sucesso!');
+          // Retorna o usuário a página Login
           navigation.replace('Login2');
         }).catch((error) => {
+          // Caso não der certo irá informar ao usuário
           console.error('Erro ao cadastrar médico:', error);
           alert('Erro ao cadastrar. Tente novamente.');
         });
@@ -91,6 +104,8 @@ const SignUpMedico = () => {
       });
   };
 
+  // Renderização do Front end
+  // O componente KeyboardAbvoidingView serve para o teclado do celular não tapar os elementos da tela
   return (
     <KeyboardAvoidingView
     style={{ flex: 1 }}

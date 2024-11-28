@@ -11,13 +11,12 @@ const LoginScreen = () => {
     const [password, setPassword] = useState('');
     const navigation = useNavigation();
 
+    // Função assincrona afim de manter o usuário logado através do @userToken
     const handleLogin = async () => {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
             const userId = user.uid; // Obtem o userId
-    
-            console.log('userId do login:', userId);  // Verifique se o userId está correto
     
             // Salva o token do usuário no AsyncStorage
             await AsyncStorage.setItem('@userToken', userId);
@@ -49,6 +48,7 @@ const LoginScreen = () => {
         }
     };
 
+    // Renderização do Front end
     return (
         <View style={customStyles.loginContainer}>
             <Text style={customStyles.title}>Login</Text>

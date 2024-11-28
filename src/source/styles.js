@@ -244,6 +244,7 @@ export const customStyles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
+        flex: 0.3,
     },
     Homebutton: {
         width: '45%',
@@ -284,10 +285,10 @@ export const customStyles = StyleSheet.create({
     pacienteContainer: {
         padding: 15,
         marginVertical: 10,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#fff',
         borderRadius: 8,
-        borderColor: '#ddd',
-        borderWidth: 1.5,
+        borderColor: '#ccc',
+        borderWidth: 1,
     },
     pacienteNome: {
         fontSize: 16,

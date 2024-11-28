@@ -28,6 +28,9 @@ const HomeScreen = () => {
         return unsubscribe;
     }, []);
 
+    {/*Função que leva o médico para o cite do CFM (Congresso Nacional de Medicina) 
+      onde tem um pequeno tutorial
+      De como funciona a assintura digital*/} 
     const linkExt = useCallback(() => {
       Linking.openURL("https://prescricaoeletronica.cfm.org.br/faq_medicos/assinatura-digital/")
     }, [])
@@ -89,12 +92,16 @@ const HomeScreen = () => {
         );
     }
 
+   {/*Os dois botões principais na tela Home, um sendo fixo para os dois tipo de usuários
+      e outro botão que muda dependendo da Role do usuário*/} 
     const buttons = [
         { 
           id: '1', 
-          title: 'Rede Credenciada', 
-          icon: 'bookmarks', 
-          //onPress: () => navigation.navigate('RedeCredenciada') 
+          title: userRole === 'medico' ? 'Como Emitir' : 'Histórico', 
+          icon: userRole === 'medico' ? 'newspaper-outline' : 'analytics-outline', 
+          onPress: userRole === 'medico' 
+              ? linkExt // Para médicos, abre o link externo
+              : () => navigation.navigate('Historico', { userId: user.userId, userRole }) // Para pacientes, vai para a tela de histórico
         },
         { 
           id: '2', 
@@ -102,18 +109,7 @@ const HomeScreen = () => {
           icon: 'chatbox-outline', 
           onPress: () => navigation.navigate(userRole === 'medico' ? 'WaitRoom' : 'Consulta', { userId: user.userId, userRole }) 
         },
-        { 
-          id: '3', 
-          title: 'Como emitir', 
-          icon: 'newspaper-outline', 
-          onPress: () => {linkExt}
-        },
-        { 
-          id: '4', 
-          title: 'Histórico', 
-          icon: 'analytics-outline', 
-          onPress: () => navigation.navigate('Historico', { userId: user.userId, userRole }) 
-        },
+       
       ];
       
       // Renderização do botão
