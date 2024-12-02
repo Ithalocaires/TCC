@@ -19,7 +19,7 @@ const ChatScreen = () => {
     const [modalVisible, setModalVisible] = useState(false); 
 
       // Função para encerrar consulta automaticamente
-      const encerrarConsultaAutomaticamente = async () => {
+      const Timeout = async () => {
         try {
             const sessionRef = doc(database, 'chatSessions', sessionId);
             const archiveRef = collection(database, 'closedChats');
@@ -65,9 +65,27 @@ const ChatScreen = () => {
     const configurarTimeout = () => {
         if (timeoutRef.current) clearTimeout(timeoutRef.current); // Limpa o temporizador anterior
         timeoutRef.current = setTimeout(() => {
-            encerrarConsultaAutomaticamente(); // Encerra a consulta após 10 minutos de inatividade
+            Timeout(); // Encerra a consulta após 10 minutos de inatividade
         }, 10 * 60 * 1000); // 10 minutos
     };
+
+    useEffect(() => {
+        // Mensagem inicial ao entrar no chat
+        setMessages([
+            {
+                _id: 1,
+                text: 'Bem-vindo ao chat! Este chat será encerrado automaticamente se não houver mensagens enviadas por 10 minutos.',
+                createdAt: new Date(),
+                system: true, // Mensagem do sistema
+            },
+        ]);
+
+        // Inicia o contador de timeout
+        startTimeout();
+
+        // Limpa o timeout quando o componente é desmontado
+        return () => clearTimeout(timerRef.current);
+    }, []);
 
     // Atualizar o status para "ativo" ao abrir o chat
     useEffect(() => {
@@ -189,7 +207,7 @@ const ChatScreen = () => {
     }, [sessionId, name]);
 
     // Encerrar consulta
-    const encerrarConsulta = async () => {
+    const EndAppointment = async () => {
     Alert.alert(
         "Encerrar Consulta",
         "Tem certeza de que deseja encerrar a consulta? Essa ação não pode ser desfeita.",
@@ -378,7 +396,7 @@ const ChatScreen = () => {
                 userRole === 'medico' && (
                     <View style={styles.actionsContainer}>
                         {/* Botão para encerrar consulta */}
-                        <TouchableOpacity onPress={encerrarConsulta} style={styles.actionButton}>
+                        <TouchableOpacity onPress={EndAppointment} style={styles.actionButton}>
                             <Icon name="close-outline" size={24} color="#E05151" />
                         </TouchableOpacity>
                          {/* Botão de Anexo */}
@@ -444,6 +462,13 @@ const ChatScreen = () => {
                 placeholder="Digite uma mensagem..."
                 alwaysShowSend={true}
                 renderAvatar={() => null}
+                renderSystemMessage={(props) => (
+                    <SystemMessage
+                        {...props}
+                        containerStyle={styles.systemMessageContainer}
+                        textStyle={styles.systemMessageText}
+                    />
+                )}
 
             />
         </View>
@@ -525,6 +550,16 @@ const styles = StyleSheet.create({
     closeButtonText: {
         color: '#fff',
         fontSize: 16,
+    },
+    systemMessageContainer: {
+        marginBottom: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    systemMessageText: {
+        fontSize: 14,
+        color: '#555',
+        textAlign: 'center',
     },
 });
 
